@@ -7,16 +7,16 @@
 
 name: Create images
 
-on: push
-# on: 
-#   schedule:
-#     # every Sunday
-#     - cron:  '0 0 * * 0'
+on: 
+  schedule:
+    # every Sunday
+    - cron:  '0 0 * * 0'
 
 jobs:
   distribution:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: build
         run: |
           echo $PWD
@@ -30,6 +30,7 @@ jobs:
   docker-compose:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: build
         run: docker build -t docker.pkg.github.com/${{ github.repository }}/docker-compose:latest docker-compose
       - name: login
@@ -40,6 +41,7 @@ jobs:
   cc7-dirac:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v1
       - name: build
         run: docker build -t docker.pkg.github.com/${{ github.repository }}/cc7-dirac:latest cc7-dirac
       - name: login
