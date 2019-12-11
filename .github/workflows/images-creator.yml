@@ -1,0 +1,24 @@
+# This workflow creates docker images that are then used for:
+#
+# - DIRAC distribution (create DIRAC release tarballs)
+# - running DIRAC integration tests in GitHub actions
+# 
+# All created images are then uploaded to GitHub packages
+
+name: Create images
+on: 
+  schedule:
+    # every Sunday
+    - cron:  '0 0 * * 0'
+
+runs-on: ubuntu-latest
+
+jobs:
+  docker-build-distribution:
+    steps:
+      - name: build
+        run: docker build -t docker.pkg.github.com/${{ github.repository }}/dirac-distribution:latest distribution
+      - name: login
+        run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
+      - name: docker push
+        run: docker push docker.pkg.github.com/${{ github.repository }}/dirac-distribution:latest
