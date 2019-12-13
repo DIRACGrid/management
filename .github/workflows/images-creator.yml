@@ -7,10 +7,11 @@
 
 name: Create images
 
-on: 
-  schedule:
-    # every Sunday
-    - cron:  '0 0 * * 0'
+on: push
+# on: 
+#   schedule:
+#     # every Sunday
+#     - cron:  '0 0 * * 0'
 
 jobs:
   # Image for running dirac-distribution
