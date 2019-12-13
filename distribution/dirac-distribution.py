@@ -22,7 +22,7 @@ parser = argparse.ArgumentParser()
 
 parser.add_argument("-r", "--release", help="release to build (mandatory)")
 parser.add_argument("-l", "--project", help="Project to build the release for (DIRAC by default)", default='DIRAC')
-parser.add_argument("-C", "--relcfg", help="Use <file> as the releases.cfg", default='releases.cfg')
+parser.add_argument("-C", "--relcfg", help="Use <file> as the releases.cfg")
 parser.add_argument("-M", "--defaultsURL", help="Where to retrieve the global defaults from", default='')
 parser.add_argument("-E", "--extjspath", help="directory of the extjs library", default='')
 
