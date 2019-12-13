@@ -14,7 +14,7 @@ on:
 
 jobs:
   # Image for running dirac-distribution
-  distribution:
+  dirac-distribution:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
@@ -22,7 +22,7 @@ jobs:
         run: |
           echo $PWD
           ls -l
-          docker build -t docker.pkg.github.com/${{ github.repository }}/dirac-distribution:latest distribution
+          docker build -t docker.pkg.github.com/${{ github.repository }}/dirac-distribution:latest dirac-distribution
       - name: login
         run: echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push

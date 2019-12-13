@@ -23,7 +23,6 @@ ADD http://cdn.sencha.com/cmd/7.0.0.40/no-jre/SenchaCmd-7.0.0.40-linux-amd64.sh.
 RUN unzip SenchaCmd-7.0.0.40-linux-amd64.sh.zip
 RUN chmod +x SenchaCmd-7.0.0.40-linux-amd64.sh
 RUN ./SenchaCmd-7.0.0.40-linux-amd64.sh -q
-#COPY ext-6.2.0/ext-6.2.0/ ext-6.2.0/
 ADD http://cdn.sencha.com/ext/gpl/ext-6.2.0-gpl.zip .
 RUN unzip ext-6.2.0-gpl.zip
 

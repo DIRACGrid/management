@@ -7,5 +7,5 @@
 
 Used for:
 
-- creating docker images to be used for integration tests of DIRAC code
-- create a docker image for creating and distributing DIRAC releases
+- creating docker images to be used for integration tests of DIRAC code (via GitHub Actions)
+- create a docker image for creating and distributing DIRAC releases (via GitHub Actions)
