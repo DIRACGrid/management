@@ -1,9 +1,9 @@
 # This workflow creates docker images that are then used for:
 #
 # - DIRAC distribution (create DIRAC release tarballs)
-# - running DIRAC integration tests in GitHub actions
+# - running DIRAC integration tests in GitHub actions (slc6+cc7+c8)
 # 
-# All created images are then uploaded to GitHub packages
+# All created images are then uploaded to GitHub packages and docker hub
 
 name: Create images
 
@@ -25,7 +25,9 @@ jobs:
           ls -l
           docker build -t dirac-distribution dirac-distribution/
       - name: tag
-        run: docker tag dirac-distribution diracgrid/dirac-distribution:latest
+        run: |
+          docker tag dirac-distribution diracgrid/dirac-distribution:latest
+          docker tag dirac-distribution docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
       - name: show
         run: docker images
       - name: login
@@ -35,7 +37,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/dirac-distribution:latest
-          docker push docker.pkg.github.com/diracgrid/dirac-distribution:latest
+          docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
 
   # Now the images for running integration tests
   docker-compose-dirac:
@@ -45,7 +47,11 @@ jobs:
       - name: build
         run: docker build -t docker-compose-dirac docker-compose-dirac/
       - name: tag
-        run: docker tag docker-compose-dirac diracgrid/docker-compose-dirac:latest
+        run: |
+          docker tag docker-compose-dirac diracgrid/docker-compose-dirac:latest
+          docker tag docker-compose-dirac docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
+      - name: show
+        run: docker images
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -53,7 +59,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/docker-compose-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/docker-compose-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
 
   c8-dirac:
     runs-on: ubuntu-latest
@@ -62,7 +68,11 @@ jobs:
       - name: build
         run: docker build -t c8-dirac c8-dirac/
       - name: tag
-        run: docker tag c8-dirac diracgrid/c8-dirac:latest
+        run: |
+          docker tag c8-dirac diracgrid/c8-dirac:latest
+          docker tag c8-dirac docker.pkg.github.com/diracgrid/management/c8-dirac:latest
+      - name: show
+        run: docker images
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -70,7 +80,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/c8-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/cc7-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/management/c8-dirac:latest
 
   cc7-dirac:
     runs-on: ubuntu-latest
@@ -79,7 +89,11 @@ jobs:
       - name: build
         run: docker build -t cc7-dirac cc7-dirac/
       - name: tag
-        run: docker tag cc7-dirac diracgrid/cc7-dirac:latest
+        run: |
+          docker tag cc7-dirac diracgrid/cc7-dirac:latest
+          docker tag cc7-dirac docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
+      - name: show
+        run: docker images
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -87,7 +101,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/cc7-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/cc7-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
 
   slc6-dirac:
     runs-on: ubuntu-latest
@@ -96,7 +110,11 @@ jobs:
       - name: build
         run: docker build -t slc6-dirac slc6-dirac/
       - name: tag
-        run: docker tag slc6-dirac diracgrid/slc6-dirac:latest
+        run: |
+          docker tag slc6-dirac diracgrid/slc6-dirac:latest
+          docker tag slc6-dirac docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
+      - name: show
+        run: docker images
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -104,4 +122,4 @@ jobs:
       - name: docker push
         run: |
           docker diracgrid/push slc6-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/slc6-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
