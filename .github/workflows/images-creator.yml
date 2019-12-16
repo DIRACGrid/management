@@ -7,11 +7,11 @@
 
 name: Create images
 
-on: push
-# on: 
-#   schedule:
-#     # every Sunday
-#     - cron:  '0 0 * * 0'
+# on: push
+on: 
+  schedule:
+    # every Sunday
+    - cron:  '0 0 * * 0'
 
 jobs:
   # Image for running dirac-distribution
@@ -121,5 +121,5 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker diracgrid/push slc6-dirac:latest
+          docker push diracgrid/slc6-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
