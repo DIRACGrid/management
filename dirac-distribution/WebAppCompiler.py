@@ -9,6 +9,8 @@ import subprocess
 import gzip
 import logging
 
+logging.basicConfig(level=logging.INFO)
+
 # from DIRAC import gConfig
 # from DIRAC.Core.Utilities.CFG import CFG
 

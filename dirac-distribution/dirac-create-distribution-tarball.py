@@ -20,6 +20,7 @@ import docutils.core
 from Distribution import parseVersionString, writeVersionToInit, createTarball
 from WebAppCompiler import WebAppCompiler
 
+logging.basicConfig(level=logging.INFO)
 
 VALID_VCS = ('svn', 'git', 'hg', 'file')
 
@@ -479,7 +480,8 @@ def create():
     _checkDestination()
     _checkoutSource()
     shutil.rmtree("%s/docs" % args.destination, ignore_errors=True)
-    _generateReleaseNotes()
+    if args.version != 'integration':
+        _generateReleaseNotes()
 
     if 'Web' in args.name and args.name != 'Web':
         # if we have an extension, we have to download, because it will be

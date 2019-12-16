@@ -18,6 +18,8 @@ import argparse
 
 from dirac_install import ReleaseConfig
 
+logging.basicConfig(level=logging.INFO)
+
 parser = argparse.ArgumentParser()
 
 parser.add_argument("-r", "--release", help="release to build (mandatory)")
