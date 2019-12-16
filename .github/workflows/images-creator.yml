@@ -30,7 +30,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker push diracgrid/dirac-distribution:latest
+          docker push diracgrid/management/dirac-distribution:latest
           docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
 
   # Now the images for running integration tests
@@ -46,7 +46,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker push diracgrid/docker-compose-dirac:latest
+          docker push diracgrid/management/docker-compose-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
 
   cc7-dirac:
@@ -61,7 +61,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker push diracgrid/cc7-dirac:latest
+          docker push diracgrid/management/cc7-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
 
   slc6-dirac:
@@ -76,5 +76,5 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker push diracgrid/slc6-dirac:latest
+          docker push diracgrid/management/slc6-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
