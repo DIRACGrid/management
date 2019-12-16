@@ -23,14 +23,16 @@ jobs:
         run: |
           echo $PWD
           ls -l
-          docker build -t dirac-distribution:latest dirac-distribution
+          docker build -t dirac-distribution dirac-distribution/
+      - name: tag
+        run: docker tag dirac-distribution diracgrid/dirac-distribution:latest
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
           echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
       - name: docker push
         run: |
-          docker push dirac-distribution:latest
+          docker push diracgrid/dirac-distribution:latest
           docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
 
   # Now the images for running integration tests
@@ -39,7 +41,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: docker build -t docker-compose-dirac:latest docker-compose-dirac
+        run: docker build -t docker-compose-dirac docker-compose-dirac/
+      - name: tag
+        run: docker tag docker-compose-dirac diracgrid/docker-compose-dirac:latest
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -54,7 +58,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: docker build -t c8-dirac:latest c8-dirac
+        run: docker build -t c8-dirac c8-dirac/
+      - name: tag
+        run: docker tag c8-dirac diracgrid/c8-dirac:latest
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -69,7 +75,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: docker build -t cc7-dirac:latest cc7-dirac
+        run: docker build -t cc7-dirac cc7-dirac/
+      - name: tag
+        run: docker tag cc7-dirac diracgrid/cc7-dirac:latest
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -84,7 +92,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: build
-        run: docker build -t slc6-dirac:latest slc6-dirac
+        run: docker build -t slc6-dirac slc6-dirac/
+      - name: tag
+        run: docker tag slc6-dirac diracgrid/slc6-dirac:latest
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
