@@ -18,6 +18,13 @@ RUN apt-get update && \
     apt-get install -y mercurial && \
     apt-get clean;
 
+# For uploading the tarballs we use kerberos
+RUN DEBIAN_FRONTEND='noninteractive' apt-get install -y krb5-user
+ADD http://linux.web.cern.ch/linux/docs/krb5.conf /etc/krb5.conf
+RUN echo "   GSSAPIDelegateCredentials yes" >> /etc/ssh/ssh_config && \
+    echo "   GSSAPITrustDNS yes" >> /etc/ssh/ssh_config && \
+    echo "   StrictHostKeyChecking no" >> /etc/ssh/ssh_config
+
 # Sencha + ExtJS
 ADD http://cdn.sencha.com/cmd/7.0.0.40/no-jre/SenchaCmd-7.0.0.40-linux-amd64.sh.zip .
 RUN unzip SenchaCmd-7.0.0.40-linux-amd64.sh.zip
