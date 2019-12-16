@@ -26,6 +26,8 @@ jobs:
           docker build -t dirac-distribution dirac-distribution/
       - name: tag
         run: docker tag dirac-distribution diracgrid/dirac-distribution:latest
+      - name: show
+        run: docker images
       - name: login
         run: |
           echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
@@ -33,7 +35,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/dirac-distribution:latest
-          docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
+          docker push docker.pkg.github.com/diracgrid/dirac-distribution:latest
 
   # Now the images for running integration tests
   docker-compose-dirac:
@@ -51,7 +53,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/docker-compose-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/docker-compose-dirac:latest
 
   c8-dirac:
     runs-on: ubuntu-latest
@@ -68,7 +70,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/c8-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/cc7-dirac:latest
 
   cc7-dirac:
     runs-on: ubuntu-latest
@@ -85,7 +87,7 @@ jobs:
       - name: docker push
         run: |
           docker push diracgrid/cc7-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/cc7-dirac:latest
 
   slc6-dirac:
     runs-on: ubuntu-latest
@@ -102,4 +104,4 @@ jobs:
       - name: docker push
         run: |
           docker diracgrid/push slc6-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
+          docker push docker.pkg.github.com/diracgrid/slc6-dirac:latest
