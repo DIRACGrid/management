@@ -64,7 +64,6 @@ class WebAppCompiler():
                 raise RuntimeError("Can not create release extjs" + repr(e))
         for dirSrc in self.__extjsDirsToCopy:
             try:
-                os.makedirs(os.path.join(extjsDirPath, os.path.split(dirSrc)[1]))
                 shutil.copytree(dirSrc, os.path.join(extjsDirPath, os.path.split(dirSrc)[1]))
             except OSError as e:
                 if e.errno != 17:
