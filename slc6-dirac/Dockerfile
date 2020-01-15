@@ -10,4 +10,4 @@ RUN yum install -y git openssl freetype fontconfig pixman libXrender htop psmisc
     yum clean all && \
     rm -rf /var/lib/apt/lists/* /lib/modules/* /lib/firmware/* /lib/kbd /var/cache/yum
 
-CMD ["/usr/sbin/init"]
+CMD ["/sbin/init"]
