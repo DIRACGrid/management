@@ -480,7 +480,7 @@ def create():
     _checkDestination()
     _checkoutSource()
     shutil.rmtree("%s/docs" % args.destination, ignore_errors=True)
-    if args.version != 'integration':
+    if args.version not in ('integration', 'master'):
         _generateReleaseNotes()
 
     if 'Web' in args.name and args.name != 'Web':
