@@ -9,15 +9,19 @@ import subprocess
 import gzip
 import logging
 
+from cfg.cfg import CFG
+
 logging.basicConfig(level=logging.INFO)
 
 # from DIRAC import gConfig
-# from DIRAC.Core.Utilities.CFG import CFG
 
 
 class WebAppCompiler():
 
     def __init__(self, name, destination, extjspath=None):
+
+        self.__name = name
+        self.__destination = destination
 
         self.__extVersion = '6.2.0'
         self.__extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
@@ -26,7 +30,7 @@ class WebAppCompiler():
 
         self.__webAppPath = os.path.join(destination, 'WebAppDIRAC', 'WebApp')
         self.__staticPaths = [os.path.join(self.__webAppPath, 'static')]
-        if name != 'WebAppDIRAC':
+        if self.__name != 'WebAppDIRAC':
             self.__staticPaths.append(os.path.join(destination, name, 'WebApp', 'static'))
 
         self.__classPaths = [os.path.join(self.__webAppPath, *p) for p in (("static", "core", "js", "utils"),
@@ -49,7 +53,6 @@ class WebAppCompiler():
         self.__compileTemplate = os.path.join(destination, 'WebAppDIRAC', "Lib", "CompileTemplates")
 
         self.__appDependency = {}
-        self.__dependencySection = "Dependencies"
 
     def __deployResources(self):
         """
@@ -184,7 +187,6 @@ class WebAppCompiler():
             if os.path.isfile(zipPath):
                 if os.stat(zipPath).st_mtime > os.stat(ePath).st_mtime:
                     continue
-            print("%s%s\r" % (n, " " * (20 - len(n))), end=' ')
             c += 1
             inf = gzip.open(zipPath, "wb", 9)
             with open(ePath, "rb") as outf:
@@ -201,8 +203,8 @@ class WebAppCompiler():
         self.__deployResources()
 
         # we are compiling an extension of WebAppDIRAC
-        # if self.__params.name != 'WebAppDIRAC':
-        #     self.__appDependency.update(self.getAppDependencies())
+        if self.__name != 'WebAppDIRAC':
+            self.__appDependency.update(self.getAppDependencies())
         staticPath = os.path.join(self.__webAppPath, "static")
         logging.info("Compiling core: %s" % staticPath)
 
@@ -272,57 +274,56 @@ class WebAppCompiler():
                 classPath = expectedJS
         return classPath
 
-    # def getAppDependencies(self):
-    #     """
-    #     Generate the dependency dictionary
+    def getAppDependencies(self):
+        """
+        Generate the dependency dictionary
 
-    #     :return: Dict
-    #     """
-    #     if self.__params.name != 'WebAppDIRAC':
-    #         self._loadWebAppCFGFiles(self.__params.name)
-    #     dependency = {}
-    #     fullName = "%s/%s" % ("/WebApp", self.__dependencySection)
-    #     optionsList = gConfig.getOptions(fullName)
-    #     for opName in optionsList:
-    #         opVal = gConfig.getValue("%s/%s" % (fullName, opName))
-    #         dependency[opName] = opVal
+        :return: dict of dependencies
+        """
+        webcfg = self._loadWebAppCFGFiles(self.__name)
+        dependencyCFG = webcfg['WebApp']['Dependencies']
+        dependencyDict = {}
+        # CFG objects resembles dictionaries, but they are not
+        # so, we can't just do "return dependencyCFG"
+        for opName in dependencyCFG:
+            dependencyDict[opName] = dependencyCFG[opName]
 
-    #     return dependency
+        return dependencyDict
 
-    # def _loadWebAppCFGFiles(self, extension):
-    #     """
-    #     Load WebApp/web.cfg definitions
+    def _loadWebAppCFGFiles(self, extension):
+        """
+        Load WebApp/web.cfg definitions
 
-    #     :param str extension: the module name of the extension of WebAppDirac for example: LHCbWebDIRAC
-    #     """
-    #     exts = [extension, "WebAppDIRAC"]
-    #     webCFG = CFG()
-    #     for modName in reversed(exts):
-    #         cfgPath = os.path.join(self.__params.destination, "%s/WebApp" % modName, "web.cfg")
-    #         if not os.path.isfile(cfgPath):
-    #             logging.info("Web configuration file %s does not exists!" % cfgPath)
-    #             continue
-    #         try:
-    #             modCFG = CFG().loadFromFile(cfgPath)
-    #         except Exception as excp:
-    #             logging.error("Could not load %s: %s" % (cfgPath, excp))
-    #             continue
-    #         logging.info("Loaded %s" % cfgPath)
-    #         expl = ["/WebApp"]
-    #         while len(expl):
-    #             current = expl.pop(0)
-    #             if not modCFG.isSection(current):
-    #                 continue
-    #             if modCFG.getOption("%s/AbsoluteDefinition" % current, False):
-    #                 logging.info("%s:%s is an absolute definition" % (modName, current))
-    #                 try:
-    #                     webCFG.deleteKey(current)
-    #                 except Exception:
-    #                     pass
-    #                 modCFG.deleteKey("%s/AbsoluteDefinition" % current)
-    #             else:
-    #                 for sec in modCFG[current].listSections():
-    #                     expl.append("%s/%s" % (current, sec))
-    #         # Add the modCFG
-    #         webCFG = webCFG.mergeWith(modCFG)
-    #     gConfig.loadCFG(webCFG)
+        :param str extension: the module name of the extension of WebAppDirac for example: LHCbWebDIRAC
+        """
+        exts = [extension, "WebAppDIRAC"]
+        webCFG = CFG()
+        for modName in reversed(exts):
+            cfgPath = os.path.join(self.__destination, "%s/WebApp" % modName, "web.cfg")
+            if not os.path.isfile(cfgPath):
+                logging.info("Web configuration file %s does not exists!" % cfgPath)
+                continue
+            try:
+                modCFG = CFG().loadFromFile(cfgPath)
+            except Exception as excp:
+                logging.error("Could not load %s: %s" % (cfgPath, excp))
+                continue
+            logging.info("Loaded %s" % cfgPath)
+            expl = ["/WebApp"]
+            while len(expl):
+                current = expl.pop(0)
+                if not modCFG.isSection(current):
+                    continue
+                if modCFG.getOption("%s/AbsoluteDefinition" % current, False):
+                    logging.info("%s:%s is an absolute definition" % (modName, current))
+                    try:
+                        webCFG.deleteKey(current)
+                    except Exception:
+                        pass
+                    modCFG.deleteKey("%s/AbsoluteDefinition" % current)
+                else:
+                    for sec in modCFG[current].listSections():
+                        expl.append("%s/%s" % (current, sec))
+            # Add the modCFG
+            webCFG = webCFG.mergeWith(modCFG)
+        return webCFG
