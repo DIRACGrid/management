@@ -1,5 +1,9 @@
-# This dockerfile creates an image used for creating DIRAC tarballs
-# Needs Java, Sencha, ExtJS for the web
+# This dockerfile creates an image used for creating and uploading DIRAC tarballs
+#
+# Python3 code
+# Needs git, subversion, mercurial for getting the code of DIRAC and its extensions
+# Needs Java, Sencha, ExtJS for compiling WebAppDIRAC and its extensions
+# Needs kerberos for uploading the tarballs
 
 # Based on Ubuntu
 FROM ubuntu:latest
