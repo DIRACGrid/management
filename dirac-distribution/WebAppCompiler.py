@@ -9,7 +9,7 @@ import subprocess
 import gzip
 import logging
 
-from cfg.cfg import CFG
+from diraccfg import CFG
 
 logging.basicConfig(level=logging.INFO)
 

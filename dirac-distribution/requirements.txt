@@ -1,2 +1,2 @@
-git+https://github.com/DIRACGrid/cfg.git#egg=cfg
+diraccfg
 Docutils
