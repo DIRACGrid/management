@@ -36,6 +36,7 @@ RUN chmod +x SenchaCmd-7.0.0.40-linux-amd64.sh
 RUN ./SenchaCmd-7.0.0.40-linux-amd64.sh -q
 ADD http://cdn.sencha.com/ext/gpl/ext-6.2.0-gpl.zip .
 RUN unzip ext-6.2.0-gpl.zip
+ENV PATH /root/bin/Sencha/Cmd:$PATH
 
 # Now the "app"
 COPY requirements.txt .
