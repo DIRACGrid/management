@@ -50,7 +50,10 @@ class WebAppCompiler():
         self.__extjsFilesToCopy.append(
             os.path.join(os.path.dirname(extjspath), "build/packages/ux/classic/ux-debug.js"))
 
-        self.__compileTemplate = os.path.join(destination, 'WebAppDIRAC', "Lib", "CompileTemplates")
+        self.__compileTemplate = "/CompileTemplates"
+        if not os.path.exists(self.__compileTemplate):
+            logging.error(
+                'CompileTemplates used to compile JS does not exists!')
 
         self.__appDependency = {}
 
