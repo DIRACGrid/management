@@ -27,6 +27,7 @@ parser.add_argument("-l", "--project", help="Project to build the release for (D
 parser.add_argument("-C", "--relcfg", help="Use <file> as the releases.cfg")
 parser.add_argument("-M", "--defaultsURL", help="Where to retrieve the global defaults from", default='')
 parser.add_argument("-E", "--extjspath", help="directory of the extjs library", default='')
+parser.add_argument("-D", "--destination", help="directory to store output files. By default tmp folder", default='')
 
 args = parser.parse_args()
 
@@ -36,8 +37,12 @@ relConf = ReleaseConfig(projectName=args.project,
 relConf.setDebugCB(logging.info)
 relConf.loadProjectDefaults()
 
-destination = tempfile.mkdtemp('DiracDist')
-logging.info("Will generate tarballs in %s" % destination)
+if args.destination:
+   destination = os.path.abspath(args.destination)
+else:
+   destination = tempfile.mkdtemp('DiracDist')
+
+logging.info("Will generate tarballs in %r" % destination)
 
 
 def createModuleTarballs():
