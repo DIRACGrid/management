@@ -126,7 +126,7 @@ jobs:
 
 jobs:
   # Image for deploying config files to CVMFS (GridFTP)
-  dirac-distribution:
+  dirac-cvmfs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v1
