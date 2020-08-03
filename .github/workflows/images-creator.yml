@@ -123,3 +123,29 @@ jobs:
         run: |
           docker push diracgrid/slc6-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
+
+jobs:
+  # Image for deploying config files to CVMFS (GridFTP)
+  dirac-distribution:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: build
+        run: |
+          echo $PWD
+          ls -l
+          docker build -t dirac-cvmfs dirac-cvmfs/
+      - name: tag
+        run: |
+          docker tag dirac-cvmfs diracgrid/dirac-cvmfs:latest
+          docker tag dirac-cvmfs docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest
+      - name: show
+        run: docker images
+      - name: login
+        run: |
+          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
+      - name: docker push
+        run: |
+          docker push diracgrid/dirac-cvmfs:latest
+          docker push docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest
