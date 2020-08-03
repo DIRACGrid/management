@@ -1,94 +1,88 @@
 """
 It is used to compile the web framework
 """
-
+from contextlib import contextmanager
+import gzip
+import json
+import logging
 import os
-import tempfile
+from os.path import isdir, isfile, join
 import shutil
 import subprocess
-import gzip
-import logging
+import tempfile
 
 from diraccfg import CFG
 
 logging.basicConfig(level=logging.INFO)
 
-# from DIRAC import gConfig
-
 
 class WebAppCompiler():
+    def __init__(self, name, destination, extjspath='/ext-6.2.0/'):
+        self._name = name
+        self._destination = destination
+        self._sdkPath = extjspath
 
-    def __init__(self, name, destination, extjspath=None):
+        self._extVersion = '6.2.0'
+        self._extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
 
-        self.__name = name
-        self.__destination = destination
+        self._webAppPath = join(destination, 'WebAppDIRAC', 'WebApp')
+        self._staticPaths = [join(self._webAppPath, 'static')]
+        if self._name != 'WebAppDIRAC':
+            self._staticPaths.append(join(destination, name, 'WebApp', 'static'))
 
-        self.__extVersion = '6.2.0'
-        self.__extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
-        if not extjspath:
-            extjspath = '/ext-6.2.0/'
+        self._classPaths = [
+            join(self._webAppPath, "static", "core", "js", "utils"),
+            join(self._webAppPath, "static", "core", "js", "core"),
+            join(extjspath, "build/ext-all-debug.js"),
+            join(extjspath, "build/packages/ux/classic/ux-debug.js"),
+            join(extjspath, "build/packages/charts/classic/charts-debug.js"),
+        ]
 
-        self.__webAppPath = os.path.join(destination, 'WebAppDIRAC', 'WebApp')
-        self.__staticPaths = [os.path.join(self.__webAppPath, 'static')]
-        if self.__name != 'WebAppDIRAC':
-            self.__staticPaths.append(os.path.join(destination, name, 'WebApp', 'static'))
+        self._extjsDirsToCopy = [
+            join(extjspath, "build/packages"),
+            join(extjspath, "build/classic"),
+        ]
 
-        self.__classPaths = [os.path.join(self.__webAppPath, *p) for p in (("static", "core", "js", "utils"),
-                                                                           ("static", "core", "js", "core"))]
-        self.__extjsDirsToCopy = []
-        self.__extjsFilesToCopy = []
+        self._extjsFilesToCopy = [
+            join(extjspath, "build/ext-all.js"),
+            join(extjspath, "build/ext-all-debug.js"),
+            join(extjspath, "build/packages/ux/classic/ux-debug.js"),
+        ]
 
-        self.__classPaths.append(os.path.join(os.path.dirname(extjspath), "build/ext-all-debug.js"))
-        self.__classPaths.append(os.path.join(os.path.dirname(extjspath), "build/packages/ux/classic/ux-debug.js"))
-        self.__classPaths.append(
-            os.path.join(os.path.dirname(extjspath), "build/packages/charts/classic/charts-debug.js"))
-        self.__sdkPath = extjspath
-        self.__extjsDirsToCopy.append(os.path.join(os.path.dirname(extjspath), "build/packages"))
-        self.__extjsDirsToCopy.append(os.path.join(os.path.dirname(extjspath), "build/classic"))
-        self.__extjsFilesToCopy.append(os.path.join(os.path.dirname(extjspath), "build/ext-all.js"))
-        self.__extjsFilesToCopy.append(os.path.join(os.path.dirname(extjspath), "build/ext-all-debug.js"))
-        self.__extjsFilesToCopy.append(
-            os.path.join(os.path.dirname(extjspath), "build/packages/ux/classic/ux-debug.js"))
+        self._compileTemplate = "/CompileTemplates"
+        if not os.path.exists(self._compileTemplate):
+            logging.error('CompileTemplates used to compile JS does not exists!')
 
-        self.__compileTemplate = "/CompileTemplates"
-        if not os.path.exists(self.__compileTemplate):
-            logging.error(
-                'CompileTemplates used to compile JS does not exists!')
+        self._appDependency = {}
 
-        self.__appDependency = {}
-
-    def __deployResources(self):
+    def _deployResources(self):
         """
         This method copy the required files and directories to the appropriate place
         """
-        extjsDirPath = os.path.join(self.__webAppPath, 'static', self.__extDir)
+        extjsDirPath = join(self._webAppPath, 'static', self._extDir)
         if not os.path.exists(extjsDirPath):
             try:
                 os.mkdir(extjsDirPath)
             except OSError as e:
-                logging.error("Can not create release extjs", repr(e))
+                logging.error(f"Can not create release extjs {e!r}")
                 raise RuntimeError("Can not create release extjs" + repr(e))
-        for dirSrc in self.__extjsDirsToCopy:
+        for dirSrc in self._extjsDirsToCopy:
+            destDir = join(extjsDirPath, os.path.split(dirSrc)[1])
             try:
-                shutil.copytree(dirSrc, os.path.join(extjsDirPath, os.path.split(dirSrc)[1]))
+                shutil.copytree(dirSrc, destDir)
             except OSError as e:
                 if e.errno != 17:
-                    errorMsg = "Can not copy %s directory to %s: %s" % (
-                        dirSrc, os.path.join(extjsDirPath, os.path.split(dirSrc)[1]), repr(e))
-                    logging.error(errorMsg)
-                    raise RuntimeError(errorMsg)
+                    raise RuntimeError(f"Can not copy {dirSrc} directory to {destDir}: {e!r}")
                 else:
-                    logging.error("%s directory already exists. It will be not overwritten!" %
-                                  os.path.join(extjsDirPath, os.path.split(dirSrc)[1]))
+                    logging.error(f"{destDir} directory already exists. It will be not overwritten!")
 
-        for filePath in self.__extjsFilesToCopy:
+        for filePath in self._extjsFilesToCopy:
             try:
                 shutil.copy(filePath, extjsDirPath)
             except (IOError, OSError) as e:
-                errorMsg = "Can not copy %s file to %s: %s" % (filePath, extjsDirPath, repr(e))
-                logging.error(errorMsg)
+                logging.error(f"Can not copy {filePath} file to {extjsDirPath}: {e!r}")
 
-    def __writeINFile(self, tplName, extra=False):
+    def _writeINFile(self, tplName, extra={}):
         """
         It creates a temporary file using different templates. For example: /tmp/zmathe/tmp4sibR5.compilejs.app.tpl
         This is required to compile the web framework.
@@ -97,41 +91,41 @@ class WebAppCompiler():
         :params dict extra: it contains the application location, which will be added to the temporary file
         :return: the location of the file
         """
-        inTpl = os.path.join(self.__compileTemplate, tplName)
-        with open(inTpl, 'r', encoding="utf-8") as infd:
+        inTpl = join(self._compileTemplate, tplName)
+        with open(inTpl) as infd:
             data = infd.read()
-        data = data.replace("%EXT_VERSION%", self.__extVersion)
-        if extra:
-            for k in extra:
-                data = data.replace("%%%s%%" % k.upper(), extra[k])
-        with tempfile.NamedTemporaryFile(suffix=".compilejs.%s" % tplName, delete=False) as fp:
-            fp.write(data.encode())
+        data = data.replace("%EXT_VERSION%", self._extVersion)
+        for k, v in extra.items():
+            data = data.replace(f"%{k.upper()}%", v)
+        with tempfile.NamedTemporaryFile(mode="wt", suffix=f".compilejs.{tplName}", delete=False) as fp:
+            fp.write(data)
             return fp.name
 
-    def __cmd(self, cmd):
+    @contextmanager
+    def _applyExtJSConfig(self, overridesPath=None):
         """
-        This is used to execure a command
-        :params list cmd: sencha command which will be executed
+        Setup sencha package configuration, restoring the original afterwards
+        :param str overridesPath: path to directory used for overrides
         """
+        packageConfigFn = join(self._sdkPath, "package.json")
+        with open(join(self._sdkPath, "package.json")) as fp:
+            packageConfig = json.load(fp)
 
-        env = {}
-        for k in ('LD_LIBRARY_PATH', 'DYLD_LIBRARY_PATH'):
-            if k in os.environ:
-                env[k] = os.environ[k]
-                os.environ.pop(k)
-        logging.info("Command is: %s" % " ".join(cmd))
+        if overridesPath:
+            logging.info(f"Applying overrides from {overridesPath}")
+            packageConfig["overrides"] = overridesPath
+
+        packageConfig["language"] = {"js": {"output": "ES6"}}
+
+        shutil.copyfile(packageConfigFn, f"{packageConfigFn}.bak")
         try:
-            result = subprocess.call(cmd)
-        except OSError as e:
-            message = 'Command does not exists: %s -> %s' % (','.join(cmd), e)
-            logging.error(message)
-            raise RuntimeError(message)
+            with open(join(self._sdkPath, "package.json"), "wt") as fp:
+                json.dump(packageConfig, fp)
+            yield
+        finally:
+            shutil.copyfile(f"{packageConfigFn}.bak", packageConfigFn)
 
-        for k in env:
-            os.environ[k] = env[k]
-        return result
-
-    def __compileApp(self, extPath, extName, appName, extClassPath=""):
+    def _compileApp(self, extPath, extName, appName, extClassPath=""):
         """
         It compiles an application
         :param str extPath: directory full path, which contains the applications
@@ -140,38 +134,32 @@ class WebAppCompiler():
         :param str appName: the name of the application for example: Accounting
         :param str extClassPath: if we compile an extension, we can provide the class path of the base class
         """
-
-        inFile = self.__writeINFile("app.tpl", {'APP_LOCATION': '%s.%s.classes.%s' % (extName, appName, appName)})
-        buildDir = os.path.join(extPath, appName, 'build')
+        inFile = self._writeINFile("app.tpl", {'APP_LOCATION': f'{extName}.{appName}.classes.{appName}'})
+        buildDir = join(extPath, appName, 'build')
         try:
             shutil.rmtree(buildDir)
         except OSError:
             pass
-        if not os.path.isdir(buildDir):
-            try:
-                os.makedirs(buildDir)
-            except IOError as excp:
-                raise RuntimeError("Can't create build dir %s" % excp)
-        outFile = os.path.join(buildDir, "index.html")
-        compressedJsFile = os.path.join(buildDir, appName + '.js')
+        os.makedirs(buildDir, exist_ok=True)
+        outFile = join(buildDir, "index.html")
+        compressedJsFile = join(buildDir, appName + '.js')
 
-        classPath = list(self.__classPaths)
-        excludePackage = ",%s.*" % extName
+        classPath = list(self._classPaths)
+        excludePackage = f",{extName}.*"
         if extClassPath != "":
             classPath.append(extClassPath)
-            excludePackage = ",DIRAC.*,%s.*" % extName
+            excludePackage = f",DIRAC.*,{extName}.*"
 
-        classPath.append(os.path.join(extPath, appName, "classes"))
+        classPath.append(join(extPath, appName, "classes"))
 
-        cmd = ['sencha', '-sdk', self.__sdkPath, 'compile', '-classpath=%s' % ",".join(classPath),
-               'page', '-name=page', '-input-file', inFile, '-out', outFile, 'and',
-               'restore', 'page', 'and', 'exclude', '-not', '-namespace', 'Ext.dirac.*%s' % excludePackage, 'and',
-               'concat', '-yui', compressedJsFile]
+        cmd = ['sencha', '-sdk', self._sdkPath, 'compile', f"-classpath={','.join(classPath)}",
+                'page', '-name=page', '-input-file', inFile, '-out', outFile, 'and',
+                'restore', 'page', 'and', 'exclude', '-not', '-namespace', f'Ext.dirac.*{excludePackage}', 'and',
+                'concat', '-yui', compressedJsFile]
+        with self._applyExtJSConfig(join(extPath, appName, "overrides")):
+            subprocess.check_call(cmd)
 
-        if self.__cmd(cmd):
-            raise RuntimeError("Error compiling %s.%s" % (extName, appName))
-
-    def __zip(self, staticPath, stack=""):
+    def _zip(self, staticPath, stack=""):
         """
         It compress the compiled applications
         """
@@ -181,97 +169,88 @@ class WebAppCompiler():
             n = stack + l[c % len(l)]
             if entry[-3:] == ".gz":
                 continue
-            ePath = os.path.join(staticPath, entry)
-            if os.path.isdir(ePath):
-                self.__zip(ePath, n)
+            ePath = join(staticPath, entry)
+            if isdir(ePath):
+                self._zip(ePath, n)
                 continue
-            zipPath = "%s.gz" % ePath
-            if os.path.isfile(zipPath):
-                if os.stat(zipPath).st_mtime > os.stat(ePath).st_mtime:
-                    continue
+            zipPath = f"{ePath}.gz"
+            if isfile(zipPath) and os.stat(zipPath).st_mtime > os.stat(ePath).st_mtime:
+                continue
             c += 1
-            inf = gzip.open(zipPath, "wb", 9)
-            with open(ePath, "rb") as outf:
-                buf = outf.read(8192)
-                while buf:
-                    inf.write(buf)
-                    buf = outf.read(8192)
-            inf.close()
+            with gzip.open(zipPath, "wb", 9) as outFp, open(ePath, "rb") as inFp:
+                while buf := inFp.read(8192):
+                    outFp.write(buf)
 
     def run(self):
         """
         This compiles the web framework
         """
-        self.__deployResources()
+        self._deployResources()
 
         # we are compiling an extension of WebAppDIRAC
-        if self.__name != 'WebAppDIRAC':
-            self.__appDependency.update(self.getAppDependencies())
-        staticPath = os.path.join(self.__webAppPath, "static")
-        logging.info("Compiling core: %s" % staticPath)
+        if self._name != 'WebAppDIRAC':
+            self._appDependency.update(self.getAppDependencies())
+        staticPath = join(self._webAppPath, "static")
+        logging.info(f"Compiling core: {staticPath}")
 
-        inFile = self.__writeINFile("core.tpl")
-        buildDir = os.path.join(staticPath, "core", "build")
+        inFile = self._writeINFile("core.tpl")
+        buildDir = join(staticPath, "core", "build")
         try:
             shutil.rmtree(buildDir)
         except OSError:
             pass
-        outFile = os.path.join(staticPath, "core", "build", "index.html")
-        logging.info(" IN file written to %s" % inFile)
+        outFile = join(staticPath, "core", "build", "index.html")
+        logging.info(f" IN file written to {inFile}")
 
-        cmd = ['sencha', '-sdk', self.__sdkPath, 'compile', '-classpath=%s' % ",".join(self.__classPaths),
-               'page', '-yui', '-input-file', inFile, '-out', outFile]
+        cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
+               "page", "-yui", "-input-file", inFile, "-out", outFile]
 
-        if self.__cmd(cmd):
-            logging.error("Error compiling JS")
-            raise RuntimeError("Failed compiling core")
+        with self._applyExtJSConfig():
+            subprocess.check_call(cmd)
 
         try:
             os.unlink(inFile)
         except IOError:
             pass
-        for staticPath in self.__staticPaths:
-            logging.info("Looing into %s" % staticPath)
+        for staticPath in self._staticPaths:
+            logging.info(f"Looking into {staticPath}")
             extDirectoryContent = os.listdir(staticPath)
             if len(extDirectoryContent) == 0:
                 raise RuntimeError("The extension directory is empty:" + str(staticPath))
-            else:
-                extNames = [ext for ext in extDirectoryContent if 'DIRAC' in ext]
-                if len(extNames) > 1:
-                    extNames.remove('DIRAC')
-                extName = extNames[-1]
-                logging.info("Detected extension:%s" % extName)
 
-            extPath = os.path.join(staticPath, extName)
-            if not os.path.isdir(extPath):
+            extNames = [ext for ext in extDirectoryContent if 'DIRAC' in ext]
+            if len(extNames) > 1:
+                extNames.remove('DIRAC')
+            extName = extNames[-1]
+            logging.info(f"Detected extension:{extName}")
+
+            extPath = join(staticPath, extName)
+            if not isdir(extPath):
                 continue
-            logging.info("Exploring %s" % extName)
+            logging.info(f"Exploring {extName}")
             for appName in os.listdir(extPath):
-                expectedJS = os.path.join(extPath, appName, "classes", "%s.js" % appName)
-                if not os.path.isfile(expectedJS):
+                expectedJS = join(extPath, appName, "classes", f"{appName}.js")
+                if not isfile(expectedJS):
                     continue
-                classPath = self.__getClasspath(extName, appName)
-                logging.info("Trying to compile %s.%s.classes.%s CLASSPATH=%s" % (extName,
-                                                                                  appName,
-                                                                                  appName,
-                                                                                  classPath))
-                self.__compileApp(extPath, extName, appName, classPath)
+                classPath = self._getClasspath(extName, appName)
+                logging.info(f"Trying to compile {extName}.{appName}.classes.{appName} CLASSPATH={classPath}")
+                self._compileApp(extPath, extName, appName, classPath)
 
         logging.info("Zipping static files")
-        self.__zip(staticPath)
+        self._zip(staticPath)
         logging.info("Done")
 
-    def __getClasspath(self, extName, appName):
+    def _getClasspath(self, extName, appName):
 
         classPath = ''
-        dependency = self.__appDependency.get("%s.%s" % (extName, appName), "")
+        dependency = self._appDependency.get(f"{extName}.{appName}", "")
 
         if dependency != "":
             depPath = dependency.split(".")
-            for staticPath in self.__staticPaths:
-                expectedJS = os.path.join(staticPath, depPath[0], depPath[1], "classes")
+            for staticPath in self._staticPaths:
+                expectedJS = join(staticPath, depPath[0], depPath[1], "classes")
                 logging.info(expectedJS)
-                if not os.path.isdir(expectedJS):
+                if not isdir(expectedJS):
                     continue
                 classPath = expectedJS
         return classPath
@@ -282,15 +261,14 @@ class WebAppCompiler():
 
         :return: dict of dependencies
         """
-        webcfg = self._loadWebAppCFGFiles(self.__name)
+        webcfg = self._loadWebAppCFGFiles(self._name)
         dependencyCFG = webcfg['WebApp']['Dependencies']
-        dependencyDict = {}
         # CFG objects resembles dictionaries, but they are not
         # so, we can't just do "return dependencyCFG"
-        for opName in dependencyCFG:
-            dependencyDict[opName] = dependencyCFG[opName]
-
-        return dependencyDict
+        return {
+            opName: dependencyCFG[opName]
+            for opName in dependencyCFG
+        }
 
     def _loadWebAppCFGFiles(self, extension):
         """
@@ -298,34 +276,32 @@ class WebAppCompiler():
 
         :param str extension: the module name of the extension of WebAppDirac for example: LHCbWebDIRAC
         """
-        exts = [extension, "WebAppDIRAC"]
         webCFG = CFG()
-        for modName in reversed(exts):
-            cfgPath = os.path.join(self.__destination, "%s/WebApp" % modName, "web.cfg")
-            if not os.path.isfile(cfgPath):
-                logging.info("Web configuration file %s does not exists!" % cfgPath)
+        for modName in ["WebAppDIRAC", extension]:
+            cfgPath = join(self._destination, modName, "WebApp", "web.cfg")
+            if not isfile(cfgPath):
+                logging.info(f"Web configuration file {cfgPath} does not exists!")
                 continue
             try:
                 modCFG = CFG().loadFromFile(cfgPath)
-            except Exception as excp:
-                logging.error("Could not load %s: %s" % (cfgPath, excp))
+            except Exception as e:
+                logging.error(f"Could not load {cfgPath}: {e}")
                 continue
-            logging.info("Loaded %s" % cfgPath)
+            logging.info(f"Loaded {cfgPath}")
             expl = ["/WebApp"]
-            while len(expl):
+            while expl:
                 current = expl.pop(0)
                 if not modCFG.isSection(current):
                     continue
-                if modCFG.getOption("%s/AbsoluteDefinition" % current, False):
-                    logging.info("%s:%s is an absolute definition" % (modName, current))
+                if modCFG.getOption(f"{current}/AbsoluteDefinition", False):
+                    logging.info(f"{modName}:{current} is an absolute definition")
                     try:
                         webCFG.deleteKey(current)
                     except Exception:
                         pass
-                    modCFG.deleteKey("%s/AbsoluteDefinition" % current)
+                    modCFG.deleteKey(f"{current}/AbsoluteDefinition")
                 else:
-                    for sec in modCFG[current].listSections():
-                        expl.append("%s/%s" % (current, sec))
+                    expl += [f"{current}/{sec}" for sec in modCFG[current].listSections()]
             # Add the modCFG
             webCFG = webCFG.mergeWith(modCFG)
         return webCFG
