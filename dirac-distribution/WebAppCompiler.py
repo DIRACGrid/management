@@ -1,6 +1,7 @@
 """
 It is used to compile the web framework
 """
+from contextlib import contextmanager
 import gzip
 import json
 import logging
@@ -100,6 +101,30 @@ class WebAppCompiler():
             fp.write(data)
             return fp.name
 
+    @contextmanager
+    def _applyExtJSConfig(self, overridesPath=None):
+        """
+        Setup sencha package configuration, restoring the original afterwards
+        :param str overridesPath: path to directory used for overrides
+        """
+        packageConfigFn = join(self._sdkPath, "package.json")
+        with open(join(self._sdkPath, "package.json")) as fp:
+            packageConfig = json.load(fp)
+
+        if overridesPath:
+            logging.info(f"Applying overrides from {overridesPath}")
+            packageConfig["overrides"] = overridesPath
+
+        packageConfig["language"] = {"js": {"output": "ES6"}}
+
+        shutil.copyfile(packageConfigFn, f"{packageConfigFn}.bak")
+        try:
+            with open(join(self._sdkPath, "package.json"), "wt") as fp:
+                json.dump(packageConfig, fp)
+            yield
+        finally:
+            shutil.copyfile(f"{packageConfigFn}.bak", packageConfigFn)
+
     def _compileApp(self, extPath, extName, appName, extClassPath=""):
         """
         It compiles an application
@@ -131,7 +156,8 @@ class WebAppCompiler():
                 'page', '-name=page', '-input-file', inFile, '-out', outFile, 'and',
                 'restore', 'page', 'and', 'exclude', '-not', '-namespace', f'Ext.dirac.*{excludePackage}', 'and',
                 'concat', '-yui', compressedJsFile]
-        subprocess.check_call(cmd)
+        with self._applyExtJSConfig(join(extPath, appName, "overrides")):
+            subprocess.check_call(cmd)
 
     def _zip(self, staticPath, stack=""):
         """
@@ -179,7 +205,8 @@ class WebAppCompiler():
         cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
                "page", "-yui", "-input-file", inFile, "-out", outFile]
 
-        subprocess.check_call(cmd)
+        with self._applyExtJSConfig():
+            subprocess.check_call(cmd)
 
         try:
             os.unlink(inFile)
