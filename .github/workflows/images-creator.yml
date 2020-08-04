@@ -7,8 +7,8 @@
 
 name: Create images
 
-# on: push
-on: 
+on:
+  push:
   schedule:
     # every Sunday
     - cron:  '0 0 * * 0'
@@ -30,14 +30,18 @@ jobs:
           docker tag dirac-distribution docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/dirac-distribution:latest
-          docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/dirac-distribution:latest;
+            docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
 
   # Now the images for running integration tests
   docker-compose-dirac:
@@ -52,14 +56,18 @@ jobs:
           docker tag docker-compose-dirac docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/docker-compose-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/docker-compose-dirac:latest;
+            docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
 
   c8-dirac:
     runs-on: ubuntu-latest
@@ -73,14 +81,18 @@ jobs:
           docker tag c8-dirac docker.pkg.github.com/diracgrid/management/c8-dirac:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/c8-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/c8-dirac:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/c8-dirac:latest;
+            docker push docker.pkg.github.com/diracgrid/management/c8-dirac:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
 
   cc7-dirac:
     runs-on: ubuntu-latest
@@ -94,14 +106,18 @@ jobs:
           docker tag cc7-dirac docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/cc7-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/cc7-dirac:latest;
+            docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
 
   slc6-dirac:
     runs-on: ubuntu-latest
@@ -115,14 +131,18 @@ jobs:
           docker tag slc6-dirac docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/slc6-dirac:latest
-          docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/slc6-dirac:latest;
+            docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
 
   # Image for deploying config files to CVMFS (GridFTP)
   dirac-cvmfs:
@@ -140,11 +160,15 @@ jobs:
           docker tag dirac-cvmfs docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest
       - name: show
         run: docker images
-      - name: login
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
         run: |
-          echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin
-          echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin
-      - name: docker push
-        run: |
-          docker push diracgrid/dirac-cvmfs:latest
-          docker push docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/dirac-cvmfs:latest;
+            docker push docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
