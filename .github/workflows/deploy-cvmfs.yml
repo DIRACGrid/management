@@ -1,0 +1,22 @@
+# This workflow deploys globalDefaults.cfg to /cvmfs/dirac.egi.eu
+
+name: Deploy globalDefaults
+
+on:
+  push:
+  schedule:
+    - cron:  '0 0 * * 0'
+
+jobs:
+  dirac-deploy:
+    runs-on: ubuntu-latest
+    container: diracgrid/dirac-cvmfs:latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: step1
+        run: |
+          ls -l
+          echo "do something"
+      - name: step2
+        run: |
+          gsissh || echo "use gsissh"
