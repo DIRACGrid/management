@@ -18,7 +18,7 @@ jobs:
   dirac-distribution:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: |
           echo $PWD
@@ -43,7 +43,7 @@ jobs:
   docker-compose-dirac:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: docker build -t docker-compose-dirac docker-compose-dirac/
       - name: tag
@@ -64,7 +64,7 @@ jobs:
   c8-dirac:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: docker build -t c8-dirac c8-dirac/
       - name: tag
@@ -85,7 +85,7 @@ jobs:
   cc7-dirac:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: docker build -t cc7-dirac cc7-dirac/
       - name: tag
@@ -106,7 +106,7 @@ jobs:
   slc6-dirac:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: docker build -t slc6-dirac slc6-dirac/
       - name: tag
@@ -124,12 +124,11 @@ jobs:
           docker push diracgrid/slc6-dirac:latest
           docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
 
-jobs:
   # Image for deploying config files to CVMFS (GridFTP)
   dirac-cvmfs:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
       - name: build
         run: |
           echo $PWD
