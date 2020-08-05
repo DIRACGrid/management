@@ -17,7 +17,10 @@ logging.basicConfig(level=logging.INFO)
 
 
 class WebAppCompiler():
-    def __init__(self, name, destination, extjspath='/ext-6.2.0/'):
+    def __init__(self, name, destination, extjspath=None):
+        if extjspath is None:
+            extjspath='/ext-6.2.0/'
+
         self._name = name
         self._destination = destination
         self._sdkPath = extjspath
