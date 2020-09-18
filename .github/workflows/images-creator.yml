@@ -27,7 +27,7 @@ jobs:
       - name: tag
         run: |
           docker tag dirac-distribution diracgrid/dirac-distribution:latest
-          docker tag dirac-distribution docker.pkg.github.com/diracgrid/management/dirac-distribution:latest
+          docker tag dirac-distribution ghcr.io/diracgrid/management/dirac-distribution:latest
       - name: show
         run: docker images
       - name: login and push
@@ -36,9 +36,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/dirac-distribution:latest;
-            docker push docker.pkg.github.com/diracgrid/management/dirac-distribution:latest;
+            docker push ghcr.io/diracgrid/management/dirac-distribution:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
@@ -53,7 +53,7 @@ jobs:
       - name: tag
         run: |
           docker tag docker-compose-dirac diracgrid/docker-compose-dirac:latest
-          docker tag docker-compose-dirac docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest
+          docker tag docker-compose-dirac ghcr.io/diracgrid/management/docker-compose-dirac:latest
       - name: show
         run: docker images
       - name: login and push
@@ -62,9 +62,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/docker-compose-dirac:latest;
-            docker push docker.pkg.github.com/diracgrid/management/docker-compose-dirac:latest;
+            docker push ghcr.io/diracgrid/management/docker-compose-dirac:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
@@ -78,7 +78,7 @@ jobs:
       - name: tag
         run: |
           docker tag c8-dirac diracgrid/c8-dirac:latest
-          docker tag c8-dirac docker.pkg.github.com/diracgrid/management/c8-dirac:latest
+          docker tag c8-dirac ghcr.io/diracgrid/management/c8-dirac:latest
       - name: show
         run: docker images
       - name: login and push
@@ -87,9 +87,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/c8-dirac:latest;
-            docker push docker.pkg.github.com/diracgrid/management/c8-dirac:latest;
+            docker push ghcr.io/diracgrid/management/c8-dirac:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
@@ -103,7 +103,7 @@ jobs:
       - name: tag
         run: |
           docker tag cc7-dirac diracgrid/cc7-dirac:latest
-          docker tag cc7-dirac docker.pkg.github.com/diracgrid/management/cc7-dirac:latest
+          docker tag cc7-dirac ghcr.io/diracgrid/management/cc7-dirac:latest
       - name: show
         run: docker images
       - name: login and push
@@ -112,9 +112,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/cc7-dirac:latest;
-            docker push docker.pkg.github.com/diracgrid/management/cc7-dirac:latest;
+            docker push ghcr.io/diracgrid/management/cc7-dirac:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
@@ -128,7 +128,7 @@ jobs:
       - name: tag
         run: |
           docker tag slc6-dirac diracgrid/slc6-dirac:latest
-          docker tag slc6-dirac docker.pkg.github.com/diracgrid/management/slc6-dirac:latest
+          docker tag slc6-dirac ghcr.io/diracgrid/management/slc6-dirac:latest
       - name: show
         run: docker images
       - name: login and push
@@ -137,9 +137,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/slc6-dirac:latest;
-            docker push docker.pkg.github.com/diracgrid/management/slc6-dirac:latest;
+            docker push ghcr.io/diracgrid/management/slc6-dirac:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
@@ -157,7 +157,7 @@ jobs:
       - name: tag
         run: |
           docker tag dirac-cvmfs diracgrid/dirac-cvmfs:latest
-          docker tag dirac-cvmfs docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest
+          docker tag dirac-cvmfs ghcr.io/diracgrid/management/dirac-cvmfs:latest
       - name: show
         run: docker images
       - name: login and push
@@ -166,9 +166,9 @@ jobs:
         run: |
           if [ ! -z ${deploy_secret} ]; then
             echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.GITHUB_TOKEN }} | docker login docker.pkg.github.com --username ${{ github.actor }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
             docker push diracgrid/dirac-cvmfs:latest;
-            docker push docker.pkg.github.com/diracgrid/management/dirac-cvmfs:latest;
+            docker push ghcr.io/diracgrid/management/dirac-cvmfs:latest;
           else
             echo "Skipping deploy no secrets present";
           fi
