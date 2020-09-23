@@ -10,7 +10,7 @@ on:
 jobs:
   dirac-deploy:
     runs-on: ubuntu-latest
-    container: diracgrid/dirac-cvmfs:latest
+    container: ghcr.io/diracgrid/management/dirac-cvmfs:latest
     steps:
       - uses: actions/checkout@v2
       - name: step1
