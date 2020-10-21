@@ -1,0 +1,44 @@
+{% set name = "tornado_m2crypto" %}
+{% set version = "0.0.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/DIRACGrid/tornado_m2crypto/archive/v{{ version }}.tar.gz
+  sha256: todo
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python >=3.4
+    - setuptools_scm
+  run:
+    # Mark as requiring Python 3 to avoid the enum34 requirement
+    - python >=3.4
+    - m2crypto
+    - tornado ==5.1.1+dirac.*
+
+test:
+  imports:
+    - tornado_m2crypto
+    - tornado_m2crypto.m2httputil
+    - tornado_m2crypto.m2iostream
+    - tornado_m2crypto.m2netutil
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/chaen/tornado_m2crypto
+  summary: Extension to run tornado with M2Crypto instead of the standard python SSL module
+  license: GPL-3.0-or-later
+  license_file: LICENSE

@@ -1,0 +1,41 @@
+{% set name = "tornado" %}
+# As we have forked tornado, use a local version identifier
+# https://www.python.org/dev/peps/pep-0440/#local-version-segments
+{% set version = "5.1.1+dirac.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://github.com/DIRACGrid/tornado/archive/v{{ version }}.tar.gz
+  sha256: todo
+
+build:
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  build:
+    - {{ compiler('c') }}
+  host:
+    - pip
+    - python
+  run:
+    - python
+
+test:
+  imports:
+    - tornado
+    - tornado.platform
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: http://www.tornadoweb.org/
+  summary: Fork of tornado for DIRAC with a patch to allow for configurable iostream
+  license: Apache-2.0
+  license_file: LICENSE

@@ -1,0 +1,4 @@
+# In general the entries in this file should be similar to conda-forge's config
+# https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml
+python:
+  - 3.8.* *_cpython
