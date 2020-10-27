@@ -10,7 +10,7 @@ package:
 
 source:
   url: https://github.com/DIRACGrid/tornado/archive/v{{ version }}.tar.gz
-  sha256: todo
+  sha256: f3ec835380323e9d38ca930bb088bb827eaa544f7a34702c9c9815ae4aafd362
 
 build:
   number: 0
