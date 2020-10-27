@@ -1,5 +1,5 @@
 {% set name = "tornado_m2crypto" %}
-{% set version = "0.0.1" %}
+{% set version = "0.1.0" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://github.com/DIRACGrid/tornado_m2crypto/archive/v{{ version }}.tar.gz
-  sha256: todo
+  sha256: 58d9ead79170a8f0e12679c25cf7f4263681e37a8b79ce492ee17141d92357d4
 
 build:
   noarch: python
