@@ -19,11 +19,11 @@ The `extra-packages/conda_build_config.yaml` file is a "[variant config file](ht
 **Reason for not using conda-forge:** This package is distributed using DIRACGrid's channel as it is a fork of the main upstream package, making it ineligible for conda-forge.
 
 **Version history:**
-* `5.1.1+dirac.1` Initial release
+* `5.1.1+dirac.1-0` Initial release
 
 ### tornado_m2crypto
 
 **Reason for not using conda-forge:** This package is completely non-functional without DIRACGrid's fork of tornado.
 
 **Version history:**
-* `1.0.0-0` Initial release
+* `0.1.1-0` Initial release
