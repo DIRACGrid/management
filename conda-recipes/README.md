@@ -12,6 +12,19 @@ conda build -c diracgrid -c conda-forge -m conda_build_config.yaml my-package/
 
 The `conda-recipes/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter version. If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
 
+Once a newly built package is ready, it can be uploaded to the [`diracgrid`](https://anaconda.org/diracgrid/) conda channel using:
+
+```bash
+# Install the anaconda CLI client
+conda install anaconda-client
+# Login using your anaconda.org credentials
+anaconda login
+# Upload the binary, the file path will be printed at the end of the conda-build log
+anaconda upload path/to/my/package.tar.bz2 --user diracgrid
+```
+
+As this is forseen as to be a rare operation, contious integration is not currently being used for building and uploading packages.
+
 ## Packages
 
 ### tornado
