@@ -4,13 +4,13 @@ This directory contains the recipes that are used to generate the packages on th
 This should only be used in situations where it is impractical to add packages to [conda-forge](https://conda-forge.org/) directly.
 New packages can be added to conda-forge using [`staged-recipes`](https://github.com/conda-forge/staged-recipes/) and existing packages can be modified by making a PR to the corresponding [`feedstock`](https://conda-forge.org/feedstocks/).
 
-If it is absolutely essential for DIRAC to have a custom build of a package, a new directory can be added here. An reference for the `meta.yaml` syntax can be found [here](https://conda.io/projects/conda-build/en/latest/resources/define-metadata.html) and the [conda-forge](https://conda-forge.org/feedstocks/) is a good source of examples. You can then test building packages by running:
+If it is absolutely essential for DIRAC to have a custom build of a package, a new directory can be added here. A reference for the `meta.yaml` syntax can be found [here](https://conda.io/projects/conda-build/en/latest/resources/define-metadata.html) and the [conda-forge](https://conda-forge.org/feedstocks/) is a good source of examples. You can then test building packages by running:
 
 ```bash
 conda build -c diracgrid -c conda-forge -m conda_build_config.yaml my-package/
 ```
 
-The `extra-packages/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter version. If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
+The `conda-recipes/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter version. If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
 
 ## Packages
 
