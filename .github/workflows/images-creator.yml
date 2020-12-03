@@ -119,31 +119,6 @@ jobs:
             echo "Skipping deploy no secrets present";
           fi
 
-  slc6-dirac:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: build
-        run: docker build -t slc6-dirac slc6-dirac/
-      - name: tag
-        run: |
-          docker tag slc6-dirac diracgrid/slc6-dirac:latest
-          docker tag slc6-dirac ghcr.io/diracgrid/management/slc6-dirac:latest
-      - name: show
-        run: docker images
-      - name: login and push
-        env:
-          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
-        run: |
-          if [ ! -z ${deploy_secret} ]; then
-            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
-            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
-            docker push diracgrid/slc6-dirac:latest;
-            docker push ghcr.io/diracgrid/management/slc6-dirac:latest;
-          else
-            echo "Skipping deploy no secrets present";
-          fi
-
   # Image for deploying config files to CVMFS (GridFTP)
   dirac-cvmfs:
     runs-on: ubuntu-latest
