@@ -9,7 +9,7 @@ RUN rm -rf /etc/yum.repos.d/*
 COPY CentOS-Vault.repo /etc/yum.repos.d/CentOS-Vault.repo
 
 # Install EPEL 
-RUN yum install -y epel-release
+COPY epel.repo /etc/yum.repos.d/epel.repo
 
 # Install DIRACOS requirements
 RUN yum install -y mock rpm-build fedora-packager createrepo python-pip
