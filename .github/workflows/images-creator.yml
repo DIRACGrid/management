@@ -174,7 +174,7 @@ jobs:
           fi
 
   # Image for building DIRAOS
-  dirac-cvmfs:
+  centos6:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
