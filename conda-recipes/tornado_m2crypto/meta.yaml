@@ -1,0 +1,46 @@
+{% set name = "tornado_m2crypto" %}
+{% set version = "0.1.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/tornado_m2crypto-{{ version }}.tar.gz
+  sha256: 89c43805bb540024cd5365188f8db039a2f5cc581dd8f148a31495d744ff724a
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+
+requirements:
+  host:
+    - pip
+    - python
+    - setuptools_scm
+  run:
+    - enum34
+    - m2crypto
+    - python
+    - tornado ==5.1.1+dirac.*
+
+test:
+  imports:
+    - tornado_m2crypto
+    - tornado_m2crypto.m2httputil
+    - tornado_m2crypto.m2iostream
+    - tornado_m2crypto.m2netutil
+    - tornado_m2crypto.test
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/DIRACGrid/tornado_m2crypto
+  summary: Extension for running tornado with M2Crypto instead of the standard python SSL module
+  dev_url: https://github.com/DIRACGrid/tornado_m2crypto/
+  license: GPL-3.0-or-later
+  license_file: LICENSE
