@@ -8,6 +8,9 @@ RUN rm -rf /etc/yum.repos.d/*
 # Install enabled Vault Repo
 COPY CentOS-Vault.repo /etc/yum.repos.d/CentOS-Vault.repo
 
+# Install disabled Springdale repo
+COPY PU_IAS6.repo /etc/yum.repos.d/PU_IAS6.repo
+
 # Install EPEL 
 COPY epel.repo /etc/yum.repos.d/epel.repo
 
