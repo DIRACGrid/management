@@ -467,6 +467,8 @@ def _generateTarball():
     dirToTar = os.path.join(args.destination, args.name)
     if args.name in os.listdir(dirToTar):
         dirToTar = os.path.join(dirToTar, args.name)
+    elif "src" in os.listdir(dirToTar):
+        dirToTar = os.path.join(dirToTar, "src", args.name)
     writeVersionToInit(dirToTar, args.version)
     createTarball(tarfilePath, dirToTar)
     # Remove package dir
