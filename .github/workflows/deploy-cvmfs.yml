@@ -22,3 +22,4 @@ jobs:
           chmod 644  /root/.globus/usercert.pem
           echo ${{ secrets.DIRACGRI_CERT_PASS }} | voms-proxy-init2 -cert /root/.globus/usercert.pem -key /root/.globus/userkey.pem -pwstdin
           gsissh -p 1975 -t cvmfs-upload01.gridpp.rl.ac.uk "cd /home/diracsgm/cvmfs_repo/admin; curl -O https://raw.githubusercontent.com/DIRACGrid/management/master/globalDefaults.cfg"
+          gsissh -p 1975 -t cvmfs-upload01.gridpp.rl.ac.uk "cd /home/diracsgm/cvmfs_repo/admin; curl -O https://raw.githubusercontent.com/DIRACGrid/management/master/dirac-install.py; chmod a+x dirac-install.py"
