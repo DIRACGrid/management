@@ -42,4 +42,4 @@ ENV PATH /root/bin/Sencha/Cmd:$PATH
 COPY requirements.txt .
 RUN pip3 install --no-cache-dir -r requirements.txt
 COPY . .
-ADD https://raw.githubusercontent.com/DIRACGrid/DIRAC/integration/Core/scripts/dirac-install.py dirac_install.py
+ADD https://raw.githubusercontent.com/DIRACGrid/management/master/dirac-install.py dirac_install.py
