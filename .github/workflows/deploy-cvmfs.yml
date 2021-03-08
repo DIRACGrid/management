@@ -1,0 +1,25 @@
+# This workflow deploys globalDefaults.cfg to /cvmfs/dirac.egi.eu
+
+name: Deploy globalDefaults
+
+on:
+  push:
+  schedule:
+    - cron:  '0 0 * * 0'
+
+jobs:
+  dirac-deploy:
+    runs-on: ubuntu-latest
+    if: github.repository == 'DIRACGrid/management'
+    container: ghcr.io/diracgrid/management/dirac-cvmfs:latest
+    steps:
+      - name: Deploy globalDefaults.cfg
+        run: |
+          mkdir -p /root/.globus/
+          echo "${{ secrets.DIRACGRI_USERCERT }}" | tr -d '\r' > /root/.globus/usercert.pem
+          echo "${{ secrets.DIRACGRI_USERKEY }}" | tr -d '\r' > /root/.globus/userkey.pem
+          chmod 400 /root/.globus/userkey.pem
+          chmod 644  /root/.globus/usercert.pem
+          echo ${{ secrets.DIRACGRI_CERT_PASS }} | voms-proxy-init2 -cert /root/.globus/usercert.pem -key /root/.globus/userkey.pem -pwstdin
+          gsissh -p 1975 -t cvmfs-upload01.gridpp.rl.ac.uk "cd /home/diracsgm/cvmfs_repo/admin; curl -O https://raw.githubusercontent.com/DIRACGrid/management/master/globalDefaults.cfg"
+          gsissh -p 1975 -t cvmfs-upload01.gridpp.rl.ac.uk "cd /home/diracsgm/cvmfs_repo/admin; curl -O https://raw.githubusercontent.com/DIRACGrid/management/master/dirac-install.py; chmod a+x dirac-install.py"
