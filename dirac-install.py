@@ -2090,35 +2090,55 @@ def createBashrc():
       if 'HOME' in os.environ:
         lines.append('[ -z "$HOME" ] && export HOME=%s' % os.environ['HOME'])
 
-      # Determining where the CAs are...
-      if 'X509_CERT_DIR' in os.environ:
-        certDir = os.environ['X509_CERT_DIR']
-      else:
-        if os.path.isdir('/etc/grid-security/certificates') and \
-           os.listdir('/etc/grid-security/certificates'):
-          # Assuming that, if present, it is not empty, and has correct CAs
-          certDir = '/etc/grid-security/certificates'
-        else:
-          # But this will have to be created at some point (dirac-configure)
-          certDir = '%s/etc/grid-security/certificates' % proPath
-      lines.extend(['# CAs path for SSL verification',
-                    'export X509_CERT_DIR=${X509_CERT_DIR:-%s}' % certDir,
-                    'export SSL_CERT_DIR=${SSL_CERT_DIR:-%s}' % certDir])
+      # Helper function for checking dirs
+      lines.extend(['# Function check if folder exist and contins files',
+                    'function checkDir () {',
+                    '  if [ -z "${1}" ]; then',
+                    '    return 1',
+                    '  fi',
+                    '  if [ -n "$(ls -A "${1}" 2>/dev/null)" ]; then',
+                    '    return 0',
+                    '  fi',
+                    '  return 1',
+                    '}',
+                    ''])
 
-      lines.append(
-          'export X509_VOMS_DIR=${X509_VOMS_DIR:-%s}' %
-          os.path.join(
-              proPath,
-              'etc',
-              'grid-security',
-              'vomsdir'))
-      lines.append(
-          'export X509_VOMSES=${X509_VOMSES:-%s}' %
-          os.path.join(
-              proPath,
-              'etc',
-              'grid-security',
-              'vomses'))
+      # Add sanity check for X509_CERT_DIR variable
+      lines.extend(['if ! checkDir "$X509_CERT_DIR" ; then',
+                    '  export X509_CERT_DIR="/etc/grid-security/certificates"',
+                    '  if ! checkDir "$X509_CERT_DIR" ; then',
+                    '    export X509_CERT_DIR="%s/etc/grid-security/certificates"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for SSL_CERT_DIR variable
+      lines.extend(['if ! checkDir "$SSL_CERT_DIR" ; then',
+                    '  export SSL_CERT_DIR="/etc/grid-security/certificates"',
+                    '  if ! checkDir "$SSL_CERT_DIR" ; then',
+                    '    export SSL_CERT_DIR="%s/etc/grid-security/certificates"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for X509_VOMS_DIR variable
+      lines.extend(['if ! checkDir "$X509_VOMS_DIR" ; then',
+                    '  export X509_VOMS_DIR="/etc/grid-security/vomsdir"',
+                    '  if ! checkDir "$X509_VOMS_DIR" ; then',
+                    '    export X509_VOMS_DIR="%s/etc/grid-security/vomsdir"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for X509_VOMSES variable
+      lines.extend(['if ! checkDir "$X509_VOMSES" ; then',
+                    '  export X509_VOMSES="/etc/grid-security/vomses"',
+                    '  if ! checkDir "$X509_VOMSES" ; then',
+                    '    export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
       lines.extend(
           [
               '# Some DIRAC locations',
@@ -2434,35 +2454,55 @@ def createBashrcForDiracOS():
       if 'HOME' in os.environ:
         lines.append('[ -z "$HOME" ] && export HOME=%s' % os.environ['HOME'])
 
-      # Determining where the CAs are...
-      if 'X509_CERT_DIR' in os.environ:
-        certDir = os.environ['X509_CERT_DIR']
-      else:
-        if os.path.isdir('/etc/grid-security/certificates') and \
-           os.listdir('/etc/grid-security/certificates'):
-          # Assuming that, if present, it is not empty, and has correct CAs
-          certDir = '/etc/grid-security/certificates'
-        else:
-          # But this will have to be created at some point (dirac-configure)
-          certDir = '%s/etc/grid-security/certificates' % proPath
-      lines.extend(['# CAs path for SSL verification',
-                    'export X509_CERT_DIR=${X509_CERT_DIR:-%s}' % certDir,
-                    'export SSL_CERT_DIR=${SSL_CERT_DIR:-%s}' % certDir])
+      # Helper function for checking dirs
+      lines.extend(['# Function check if folder exist and contins files',
+                    'function checkDir () {',
+                    '  if [ -z "${1}" ]; then',
+                    '    return 1',
+                    '  fi',
+                    '  if [ -n "$(ls -A "${1}" 2>/dev/null)" ]; then',
+                    '    return 0',
+                    '  fi',
+                    '  return 1',
+                    '}',
+                    ''])
 
-      lines.append(
-          'export X509_VOMS_DIR=${X509_VOMS_DIR:-%s}' %
-          os.path.join(
-              proPath,
-              'etc',
-              'grid-security',
-              'vomsdir'))
-      lines.append(
-          'export X509_VOMSES=${X509_VOMSES:-%s}' %
-          os.path.join(
-              proPath,
-              'etc',
-              'grid-security',
-              'vomses'))
+      # Add sanity check for X509_CERT_DIR variable
+      lines.extend(['if ! checkDir "$X509_CERT_DIR" ; then',
+                    '  export X509_CERT_DIR="/etc/grid-security/certificates"',
+                    '  if ! checkDir "$X509_CERT_DIR" ; then',
+                    '    export X509_CERT_DIR="%s/etc/grid-security/certificates"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for SSL_CERT_DIR variable
+      lines.extend(['if ! checkDir "$SSL_CERT_DIR" ; then',
+                    '  export SSL_CERT_DIR="/etc/grid-security/certificates"',
+                    '  if ! checkDir "$SSL_CERT_DIR" ; then',
+                    '    export SSL_CERT_DIR="%s/etc/grid-security/certificates"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for X509_VOMS_DIR variable
+      lines.extend(['if ! checkDir "$X509_VOMS_DIR" ; then',
+                    '  export X509_VOMS_DIR="/etc/grid-security/vomsdir"',
+                    '  if ! checkDir "$X509_VOMS_DIR" ; then',
+                    '    export X509_VOMS_DIR="%s/etc/grid-security/vomsdir"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
+      # Add sanity check for X509_VOMSES variable
+      lines.extend(['if ! checkDir "$X509_VOMSES" ; then',
+                    '  export X509_VOMSES="/etc/grid-security/vomses"',
+                    '  if ! checkDir "$X509_VOMSES" ; then',
+                    '    export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
+                    '  fi',
+                    'fi',
+                    ''])
+
       lines.extend(
           [
               '# Some DIRAC locations',
