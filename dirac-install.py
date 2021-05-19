@@ -2132,7 +2132,7 @@ def createBashrc():
 
       # Add sanity check for X509_VOMSES variable
       lines.extend(['if ! checkDir "$X509_VOMSES" ; then',
-                    '  export X509_VOMSES="/etc/grid-security/vomses"',
+                    '  export X509_VOMSES="/etc/vomses"',
                     '  if ! checkDir "$X509_VOMSES" ; then',
                     '    export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
                     '  fi',
@@ -2496,7 +2496,7 @@ def createBashrcForDiracOS():
 
       # Add sanity check for X509_VOMSES variable
       lines.extend(['if ! checkDir "$X509_VOMSES" ; then',
-                    '  export X509_VOMSES="/etc/grid-security/vomses"',
+                    '  export X509_VOMSES="/etc/vomses"',
                     '  if ! checkDir "$X509_VOMSES" ; then',
                     '    export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
                     '  fi',
