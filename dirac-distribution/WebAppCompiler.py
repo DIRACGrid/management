@@ -28,10 +28,10 @@ class WebAppCompiler():
         self._extVersion = '6.2.0'
         self._extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
 
-        self._webAppPath = join(destination, 'WebAppDIRAC', 'src', 'WebAppDIRAC', 'WebApp')
+        self._webAppPath = join(destination, 'WebAppDIRAC', 'WebApp')
         self._staticPaths = [join(self._webAppPath, 'static')]
         if self._name != 'WebAppDIRAC':
-            self._staticPaths.append(join(destination, name, 'WebApp', 'static'))
+            self._staticPaths.append(join(name.join(destination.rsplit('WebAppDIRAC', 1)), name, 'WebApp', 'static'))
 
         self._classPaths = [
             join(self._webAppPath, "static", "core", "js", "utils"),
@@ -281,7 +281,7 @@ class WebAppCompiler():
         """
         webCFG = CFG()
         for modName in ["WebAppDIRAC", extension]:
-            cfgPath = join(self._destination, modName, "WebApp", "web.cfg")
+            cfgPath = join(modName.join(self._destination.rsplit('WebAppDIRAC', 1)), modName, "WebApp", "web.cfg")
             if not isfile(cfgPath):
                 logging.info(f"Web configuration file {cfgPath} does not exists!")
                 continue

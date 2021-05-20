@@ -491,7 +491,10 @@ def create():
         if args.extensionVersion and args.extensionSource:
             # if extensionSource is not provided, the default one is used. args.soureURL....
             _checkoutSource("WebAppDIRAC", args.extensionSource, args.extensionVersion)
-        WebAppCompiler(args.name, args.destination, args.extjspath).run()
+        if args.extensionVersion not in ('integration', 'master') or args.extensionVersion < 'v4r3':
+          WebAppCompiler(args.name, args.destination, args.extjspath).run()
+        else:
+          WebAppCompiler(args.name, os.path.join(args.destination, 'WebAppDIRAC', 'src'), args.extjspath).run()
 
     return _generateTarball()
 
