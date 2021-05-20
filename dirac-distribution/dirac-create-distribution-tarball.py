@@ -491,7 +491,7 @@ def create():
         if args.extensionVersion and args.extensionSource:
             # if extensionSource is not provided, the default one is used. args.soureURL....
             _checkoutSource("WebAppDIRAC", args.extensionSource, args.extensionVersion)
-        if os.path.isdir(join(args.destination, 'WebAppDIRAC', 'src')):
+        if os.path.isdir(os.path.join(args.destination, 'WebAppDIRAC', 'src')):
           WebAppCompiler(args.name, os.path.join(args.destination, 'WebAppDIRAC', 'src'), args.extjspath).run()
         else:
           WebAppCompiler(args.name, args.destination, args.extjspath).run()
