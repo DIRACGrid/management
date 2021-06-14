@@ -2208,8 +2208,9 @@ def createBashrc():
                     'export ARC_PLUGIN_PATH=$DIRACLIB/arc'])
 
       # Add the lines required for fork support for xrootd
-      lines.extend(['# Fork support for xrootd',
-                    'export XRD_RUNFORKHANDLER=1'])
+      if cliParams.externalsType == 'server':
+        lines.extend(['# Fork support for xrootd',
+                      'export XRD_RUNFORKHANDLER=1'])
 
       # Add the lines required for further env variables requested
       if cliParams.userEnvVariables:
@@ -2336,8 +2337,9 @@ def createCshrc():
                     'setenv ARC_PLUGIN_PATH $DIRACLIB/arc'])
 
       # Add the lines required for fork support for xrootd
-      lines.extend(['# Fork support for xrootd',
-                    'setenv XRD_RUNFORKHANDLER 1'])
+      if cliParams.externalsType == 'server':
+        lines.extend(['# Fork support for xrootd',
+                      'setenv XRD_RUNFORKHANDLER 1'])
 
       # Add the lines required for further env variables requested
       if cliParams.userEnvVariables:
@@ -2530,8 +2532,9 @@ def createBashrcForDiracOS():
                     'export GLOBUS_FTP_CLIENT_IPV6=TRUE'])
 
       # Add the lines required for fork support for xrootd
-      lines.extend(['# Fork support for xrootd',
-                    'export XRD_RUNFORKHANDLER=1'])
+      if cliParams.externalsType == 'server':
+        lines.extend(['# Fork support for xrootd',
+                      'export XRD_RUNFORKHANDLER=1'])
 
       # Add possible DIRAC environment variables
       lines.append('')
