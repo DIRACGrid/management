@@ -95,7 +95,8 @@ fi
 mkdir -p "${install_root}/versions"
 cd "${install_root}"
 curl -LO "https://github.com/DIRACGrid/DIRACOS2/releases/latest/download/DIRACOS-Linux-$(uname -m).sh"
-install_diracos_root="${install_root}/versions/v${version}-$(uname -m)-$(date -u '+%s')"
+version_and_date="v${version}-$(date -u '+%s')"
+install_diracos_root="${install_root}/versions/${version_and_date}-$(uname -m)"
 bash "DIRACOS-Linux-$(uname -m).sh" -p "${install_diracos_root}"
 rm "DIRACOS-Linux-$(uname -m).sh"
 source "${install_diracos_root}/diracosrc"
@@ -108,10 +109,14 @@ if (( ${#extra_pip_install[@]} )); then
 fi
 
 # Finish off the installation
-ln -s "${install_diracos_root}" "${install_root}/v${version}-$(uname -m)"
-echo "v${version}" > "${install_root}/pro"
+echo "${version_and_date}" > "${install_root}/pro"
 {
-  echo '[ -z "${DIRAC:-}" ] && export DIRAC="'"${install_root}"'/$(cat '"${install_root}"'/pro)-$(uname -m)"'
+  echo 'default_dirac="'"${install_root}"'/versions/$(cat '"${install_root}"'/pro)-$(uname -m)"'
+  echo 'if [ -n "${DIRAC:-}" ] && [[ "${default_dirac}" != "${DIRAC:-}" ]]; then'
+  echo '    echo DIRAC installation path overriden to ${DIRAC}'
+  echo 'fi'
+  echo 'export DIRAC=${DIRAC:-${default_dirac}}'
+  echo 'unset default_dirac'
   echo ''
   echo '# CAs path for SSL verification'
   echo 'export X509_CERT_DIR=${X509_CERT_DIR:-"'"${install_root}/etc/grid-security/certificates"'"}'
