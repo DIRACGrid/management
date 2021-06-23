@@ -17,13 +17,14 @@ logging.basicConfig(level=logging.INFO)
 
 
 class WebAppCompiler():
-    def __init__(self, name, destination, extjspath=None):
+    def __init__(self, name, destination, extjspath=None, py3_style=False):
         if extjspath is None:
             extjspath='/ext-6.2.0/'
 
         self._name = name
         self._destination = destination
         self._sdkPath = extjspath
+        self._py3_style = py3_style
 
         self._extVersion = '6.2.0'
         self._extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
@@ -58,14 +59,14 @@ class WebAppCompiler():
 
         self._appDependency = {}
 
-    def _deployResources(self):
+    def _deployResources(self, webAppPath=None):
         """
         This method copy the required files and directories to the appropriate place
         """
-        extjsDirPath = join(self._webAppPath, 'static', self._extDir)
+        extjsDirPath = join(webAppPath or self._webAppPath, 'static', self._extDir)
         if not os.path.exists(extjsDirPath):
             try:
-                os.mkdir(extjsDirPath)
+                os.makedirs(extjsDirPath)
             except OSError as e:
                 logging.error(f"Can not create release extjs {e!r}")
                 raise RuntimeError("Can not create release extjs" + repr(e))
@@ -188,7 +189,17 @@ class WebAppCompiler():
         """
         This compiles the web framework
         """
-        self._deployResources()
+        if self._py3_style:
+            if self._name == "DIRACWebAppResources":
+                logging.info("Running _deployResources for %s", self._name)
+                self._deployResources(join(self._destination, self._name, 'WebApp'))
+                logging.info("Zipping static files")
+                self._zip(join(self._destination, self._name, 'WebApp', "static"))
+                logging.info("Done")
+                return
+            logging.info("Skipping _deployResources as in Python 3 style but not packaging DIRACWebAppResources")
+        else:
+            self._deployResources()
 
         # we are compiling an extension of WebAppDIRAC
         if self._name != 'WebAppDIRAC':
