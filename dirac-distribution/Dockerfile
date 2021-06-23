@@ -7,7 +7,7 @@
 
 # Based on Ubuntu
 FROM ubuntu:latest
-MAINTAINER Federico Stagni <federico.stagni@cern.ch>
+LABEL org.opencontainers.image.authors="federico.stagni@cern.ch"
 
 # Updates, plus install Java (for Sencha), and python3 (+pip)
 RUN apt-get update && \
@@ -31,11 +31,13 @@ RUN echo "   GSSAPIDelegateCredentials yes" >> /etc/ssh/ssh_config && \
 
 # Sencha + ExtJS
 ADD http://cdn.sencha.com/cmd/7.0.0.40/no-jre/SenchaCmd-7.0.0.40-linux-amd64.sh.zip .
-RUN unzip SenchaCmd-7.0.0.40-linux-amd64.sh.zip
-RUN chmod +x SenchaCmd-7.0.0.40-linux-amd64.sh
-RUN ./SenchaCmd-7.0.0.40-linux-amd64.sh -q
+RUN unzip SenchaCmd-7.0.0.40-linux-amd64.sh.zip && \
+    chmod +x SenchaCmd-7.0.0.40-linux-amd64.sh && \
+    ./SenchaCmd-7.0.0.40-linux-amd64.sh -q
 ADD http://cdn.sencha.com/ext/gpl/ext-6.2.0-gpl.zip .
 RUN unzip ext-6.2.0-gpl.zip
+# Give everyone the same permissions on the ExtJS sources so the image can be ran as any user
+RUN chmod -R a=u /ext-6.2.0/ /root && chmod a+rwx /root/bin/Sencha/Cmd
 ENV PATH /root/bin/Sencha/Cmd:$PATH
 
 # Now the "app"
