@@ -212,25 +212,29 @@ class WebAppCompiler():
         staticPath = join(self._webAppPath, "static")
         logging.info(f"Compiling core: {staticPath}")
 
-        inFile = self._writeINFile("core.tpl")
-        buildDir = join(staticPath, "core", "build")
-        try:
-            shutil.rmtree(buildDir)
-        except OSError:
-            pass
         outFile = join(staticPath, "core", "build", "index.html")
-        logging.info(f" IN file written to {inFile}")
+        if os.path.isfile(outFile):
+            logging.info(f"Skipping generation of {outFile} as it already exists")
+        else:
+            inFile = self._writeINFile("core.tpl")
+            buildDir = join(staticPath, "core", "build")
+            try:
+                shutil.rmtree(buildDir)
+            except OSError:
+                pass
+            logging.info(f" IN file written to {inFile}")
 
-        cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
-               "page", "-yui", "-input-file", inFile, "-out", outFile]
-        logging.info("Running %s", shlex.join(cmd))
-        with self._applyExtJSConfig():
-            subprocess.check_call(cmd)
+            cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
+                "page", "-yui", "-input-file", inFile, "-out", outFile]
+            logging.info("Running %s", shlex.join(cmd))
+            with self._applyExtJSConfig():
+                subprocess.check_call(cmd)
 
-        try:
-            os.unlink(inFile)
-        except IOError:
-            pass
+            try:
+                os.unlink(inFile)
+            except IOError:
+                pass
+
         for staticPath in self._staticPathsToCompile:
             logging.info(f"Looking into {staticPath}")
             extDirectoryContent = os.listdir(staticPath)
@@ -260,7 +264,6 @@ class WebAppCompiler():
         logging.info("Done")
 
     def _getClasspath(self, extName, appName):
-
         classPath = ''
         dependency = self._appDependency.get(f"{extName}.{appName}", "")
 
