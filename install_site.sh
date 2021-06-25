@@ -102,7 +102,12 @@ rm "DIRACOS-Linux-$(uname -m).sh"
 source "${install_diracos_root}/diracosrc"
 
 # Install DIRAC
-pip install "${extension}==${version}"
+declare -a pip_install_args
+pip_install_args+=("${extension}[server]==${version}")
+if [[ "$(grep WebPortal "${install_cfg}" | cut -d '=' -f 2 | tr -d " ")" == "yes" ]]; then
+  pip_install_args+=("WebAppDIRAC[server]")
+fi
+pip install "${pip_install_args[@]}"
 if (( ${#extra_pip_install[@]} )); then
   echo Installing extra pip packages with "${extra_pip_install[@]}"
   pip install "${extra_pip_install[@]}"
