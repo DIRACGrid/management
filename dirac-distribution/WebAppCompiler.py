@@ -7,6 +7,7 @@ import json
 import logging
 import os
 from os.path import isdir, isfile, join
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -30,9 +31,13 @@ class WebAppCompiler():
         self._extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
 
         self._webAppPath = join(destination, 'WebAppDIRAC', 'WebApp')
-        self._staticPaths = [join(self._webAppPath, 'static')]
+        self._allStaticPaths = [join(self._webAppPath, 'static')]
         if self._name != 'WebAppDIRAC':
-            self._staticPaths.append(join(name.join(destination.rsplit('WebAppDIRAC', 1)), name, 'WebApp', 'static'))
+            self._allStaticPaths.append(join(name.join(destination.rsplit('WebAppDIRAC', 1)), name, 'WebApp', 'static'))
+        if self._py3_style:
+            self._staticPathsToCompile = [self._allStaticPaths[-1]]
+        else:
+            self._staticPathsToCompile = self._allStaticPaths[:]
 
         self._classPaths = [
             join(self._webAppPath, "static", "core", "js", "utils"),
@@ -218,7 +223,7 @@ class WebAppCompiler():
 
         cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
                "page", "-yui", "-input-file", inFile, "-out", outFile]
-
+        logging.info("Running %s", shlex.join(cmd))
         with self._applyExtJSConfig():
             subprocess.check_call(cmd)
 
@@ -226,7 +231,7 @@ class WebAppCompiler():
             os.unlink(inFile)
         except IOError:
             pass
-        for staticPath in self._staticPaths:
+        for staticPath in self._staticPathsToCompile:
             logging.info(f"Looking into {staticPath}")
             extDirectoryContent = os.listdir(staticPath)
             if len(extDirectoryContent) == 0:
@@ -261,7 +266,7 @@ class WebAppCompiler():
 
         if dependency != "":
             depPath = dependency.split(".")
-            for staticPath in self._staticPaths:
+            for staticPath in self._allStaticPaths:
                 expectedJS = join(staticPath, depPath[0], depPath[1], "classes")
                 logging.info(expectedJS)
                 if not isdir(expectedJS):
