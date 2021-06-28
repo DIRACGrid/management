@@ -7,6 +7,7 @@ import json
 import logging
 import os
 from os.path import isdir, isfile, join
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -17,21 +18,26 @@ logging.basicConfig(level=logging.INFO)
 
 
 class WebAppCompiler():
-    def __init__(self, name, destination, extjspath=None):
+    def __init__(self, name, destination, extjspath=None, py3_style=False):
         if extjspath is None:
             extjspath='/ext-6.2.0/'
 
         self._name = name
         self._destination = destination
         self._sdkPath = extjspath
+        self._py3_style = py3_style
 
         self._extVersion = '6.2.0'
         self._extDir = 'extjs'    # this directory will contain all the resources required by ExtJS
 
         self._webAppPath = join(destination, 'WebAppDIRAC', 'WebApp')
-        self._staticPaths = [join(self._webAppPath, 'static')]
+        self._allStaticPaths = [join(self._webAppPath, 'static')]
         if self._name != 'WebAppDIRAC':
-            self._staticPaths.append(join(name.join(destination.rsplit('WebAppDIRAC', 1)), name, 'WebApp', 'static'))
+            self._allStaticPaths.append(join(name.join(destination.rsplit('WebAppDIRAC', 1)), name, 'WebApp', 'static'))
+        if self._py3_style:
+            self._staticPathsToCompile = [self._allStaticPaths[-1]]
+        else:
+            self._staticPathsToCompile = self._allStaticPaths[:]
 
         self._classPaths = [
             join(self._webAppPath, "static", "core", "js", "utils"),
@@ -58,14 +64,14 @@ class WebAppCompiler():
 
         self._appDependency = {}
 
-    def _deployResources(self):
+    def _deployResources(self, webAppPath=None):
         """
         This method copy the required files and directories to the appropriate place
         """
-        extjsDirPath = join(self._webAppPath, 'static', self._extDir)
+        extjsDirPath = join(webAppPath or self._webAppPath, 'static', self._extDir)
         if not os.path.exists(extjsDirPath):
             try:
-                os.mkdir(extjsDirPath)
+                os.makedirs(extjsDirPath)
             except OSError as e:
                 logging.error(f"Can not create release extjs {e!r}")
                 raise RuntimeError("Can not create release extjs" + repr(e))
@@ -188,7 +194,17 @@ class WebAppCompiler():
         """
         This compiles the web framework
         """
-        self._deployResources()
+        if self._py3_style:
+            if self._name == "DIRACWebAppResources":
+                logging.info("Running _deployResources for %s", self._name)
+                self._deployResources(join(self._destination, self._name, 'WebApp'))
+                logging.info("Zipping static files")
+                self._zip(join(self._destination, self._name, 'WebApp', "static"))
+                logging.info("Done")
+                return
+            logging.info("Skipping _deployResources as in Python 3 style but not packaging DIRACWebAppResources")
+        else:
+            self._deployResources()
 
         # we are compiling an extension of WebAppDIRAC
         if self._name != 'WebAppDIRAC':
@@ -196,26 +212,30 @@ class WebAppCompiler():
         staticPath = join(self._webAppPath, "static")
         logging.info(f"Compiling core: {staticPath}")
 
-        inFile = self._writeINFile("core.tpl")
-        buildDir = join(staticPath, "core", "build")
-        try:
-            shutil.rmtree(buildDir)
-        except OSError:
-            pass
         outFile = join(staticPath, "core", "build", "index.html")
-        logging.info(f" IN file written to {inFile}")
+        if os.path.isfile(outFile):
+            logging.info(f"Skipping generation of {outFile} as it already exists")
+        else:
+            inFile = self._writeINFile("core.tpl")
+            buildDir = join(staticPath, "core", "build")
+            try:
+                shutil.rmtree(buildDir)
+            except OSError:
+                pass
+            logging.info(f" IN file written to {inFile}")
 
-        cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
-               "page", "-yui", "-input-file", inFile, "-out", outFile]
+            cmd = ["sencha", "-sdk", self._sdkPath, "compile", f"-classpath={','.join(self._classPaths)}",
+                "page", "-yui", "-input-file", inFile, "-out", outFile]
+            logging.info("Running %s", shlex.join(cmd))
+            with self._applyExtJSConfig():
+                subprocess.check_call(cmd)
 
-        with self._applyExtJSConfig():
-            subprocess.check_call(cmd)
+            try:
+                os.unlink(inFile)
+            except IOError:
+                pass
 
-        try:
-            os.unlink(inFile)
-        except IOError:
-            pass
-        for staticPath in self._staticPaths:
+        for staticPath in self._staticPathsToCompile:
             logging.info(f"Looking into {staticPath}")
             extDirectoryContent = os.listdir(staticPath)
             if len(extDirectoryContent) == 0:
@@ -244,13 +264,12 @@ class WebAppCompiler():
         logging.info("Done")
 
     def _getClasspath(self, extName, appName):
-
         classPath = ''
         dependency = self._appDependency.get(f"{extName}.{appName}", "")
 
         if dependency != "":
             depPath = dependency.split(".")
-            for staticPath in self._staticPaths:
+            for staticPath in self._allStaticPaths:
                 expectedJS = join(staticPath, depPath[0], depPath[1], "classes")
                 logging.info(expectedJS)
                 if not isdir(expectedJS):
