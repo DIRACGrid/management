@@ -2024,11 +2024,13 @@ def createPermanentDirLinks():
   if cliParams.useVersionsDir:
     try:
       # Directories
-      for directory in ['startup', 'runit', 'data', 'work', 'control', 'sbin', 'etc', 'webRoot']:
+      for path in ['startup', 'runit', 'data', 'work', 'control', 'sbin', 'etc', 'webRoot/www/pilot']:
+        directory = path.split('/')[0]
         fake = os.path.join(cliParams.targetPath, directory)
         real = os.path.join(cliParams.basePath, directory)
-        if not os.path.exists(real):
-          os.makedirs(real)
+        realPath = os.path.join(cliParams.basePath, path)
+        if not os.path.exists(realPath):
+          os.makedirs(realPath)
         if os.path.exists(fake):
           # Try to reproduce the directory structure to avoid lacking directories
           fakeDirs = os.listdir(fake)
