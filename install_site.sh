@@ -91,14 +91,16 @@ if [[ -z "${version}" ]]; then
   echo "Detected latest version of ${extension} as ${version}"
 fi
 
+version_and_date="v${version}-$(date -u '+%s')"
+platform="$(uname -s)-$(uname -m)"
+
 # Download and install DIRACOS
 mkdir -p "${install_root}/versions"
 cd "${install_root}"
-curl -LO "https://github.com/DIRACGrid/DIRACOS2/releases/latest/download/DIRACOS-Linux-$(uname -m).sh"
-version_and_date="v${version}-$(date -u '+%s')"
-install_diracos_root="${install_root}/versions/${version_and_date}-$(uname -m)"
-bash "DIRACOS-Linux-$(uname -m).sh" -p "${install_diracos_root}"
-rm "DIRACOS-Linux-$(uname -m).sh"
+curl -LO "https://github.com/DIRACGrid/DIRACOS2/releases/latest/download/DIRACOS-${platform}.sh"
+install_diracos_root="${install_root}/versions/${version_and_date}/${platform}"
+bash "DIRACOS-${platform}.sh" -p "${install_diracos_root}"
+rm "DIRACOS-${platform}.sh"
 source "${install_diracos_root}/diracosrc"
 
 # Install DIRAC
@@ -114,9 +116,9 @@ if (( ${#extra_pip_install[@]} )); then
 fi
 
 # Finish off the installation
-echo "${version_and_date}" > "${install_root}/pro"
+ln -s "${install_root}/versions/${version_and_date}" "${install_root}/pro"
 {
-  echo 'default_dirac="'"${install_root}"'/versions/$(cat '"${install_root}"'/pro)-$(uname -m)"'
+  echo 'default_dirac="'"${install_root}"'/pro/$(uname -s)-$(uname -m)"'
   echo 'if [ -n "${DIRAC:-}" ] && [[ "${default_dirac}" != "${DIRAC:-}" ]]; then'
   echo '    echo DIRAC installation path overriden to ${DIRAC}'
   echo 'fi'
