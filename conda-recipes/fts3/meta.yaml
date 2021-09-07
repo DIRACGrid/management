@@ -1,5 +1,5 @@
 {% set name = "fts3" %}
-{% set version = "0.0.0.1.dev1" %}
+{% set version = "0.0.0.1.dev2" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   git_url: https://gitlab.cern.ch/chaen/fts-rest-flask.git
-  git_rev: 21e89541559ca497daebff6e51fd883ffcb458a1
+  git_rev: b77ebdc9995083d05113cdf18151d2debb2025ca
 
 build:
   noarch: python
