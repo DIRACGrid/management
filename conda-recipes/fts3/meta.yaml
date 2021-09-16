@@ -1,0 +1,56 @@
+{% set name = "fts3" %}
+{% set version = "0.0.0.1.dev2" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  git_url: https://gitlab.cern.ch/chaen/fts-rest-flask.git
+  git_rev: b77ebdc9995083d05113cdf18151d2debb2025ca
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install . -vv
+  entry_points:
+    - fts-rest-ban = fts3.scripts.fts_rest_ban:main
+    - fts-rest-delegate = fts3.scripts.fts_rest_delegate:main
+    - fts-rest-delete-submit = fts3.scripts.fts_rest_delete_submit:main
+    - fts-rest-server-status = fts3.scripts.fts_rest_server_status:main
+    - fts-rest-transfer-cancel = fts3.scripts.fts_rest_transfer_cancel:main
+    - fts-rest-transfer-list = fts3.scripts.fts_rest_transfer_list:main
+    - fts-rest-transfer-status = fts3.scripts.fts_rest_transfer_status:main
+    - fts-rest-transfer-submit = fts3.scripts.fts_rest_transfer_submit:main
+    - fts-rest-whoami = fts3.scripts.fts_rest_whoami:main
+
+requirements:
+  host:
+    - pip
+    - python >=3.6
+    - setuptools_scm
+  run:
+    - python >=3.6
+    - m2crypto
+    - requests
+    - setuptools
+
+
+test:
+  imports:
+    - fts3
+    - fts3.cli
+    - fts3.rest
+    - fts3.scripts
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://gitlab.cern.ch/fts/fts-rest-flask
+  summary: FTS Python 3 CLI and libraries
+  dev_url: https://gitlab.cern.ch/fts/fts-rest-flask
+  license: Apache-2.0
+  license_file: LICENSE
