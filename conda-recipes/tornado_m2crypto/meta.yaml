@@ -1,5 +1,5 @@
 {% set name = "tornado_m2crypto" %}
-{% set version = "0.1.1" %}
+{% set version = "0.1.2" %}
 
 
 package:
@@ -8,7 +8,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/tornado_m2crypto-{{ version }}.tar.gz
-  sha256: 89c43805bb540024cd5365188f8db039a2f5cc581dd8f148a31495d744ff724a
+  sha256: f60b1fa913df69a5d520b1e0328de44d44631e01b9cf7d303b1127dc7f8a8e1b
 
 build:
   noarch: python
