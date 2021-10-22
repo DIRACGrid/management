@@ -2121,19 +2121,13 @@ def createBashrc():
 
       # Add sanity check for X509_VOMS_DIR variable
       lines.extend(['if ! checkDir "$X509_VOMS_DIR" ; then',
-                    '  export X509_VOMS_DIR="/etc/grid-security/vomsdir"',
-                    '  if ! checkDir "$X509_VOMS_DIR" ; then',
-                    '    export X509_VOMS_DIR="%s/etc/grid-security/vomsdir"' % proPath,
-                    '  fi',
+                    '  export X509_VOMS_DIR="%s/etc/grid-security/vomsdir"' % proPath,
                     'fi',
                     ''])
 
       # Add sanity check for X509_VOMSES variable
       lines.extend(['if ! checkDir "$X509_VOMSES" ; then',
-                    '  export X509_VOMSES="/etc/vomses"',
-                    '  if ! checkDir "$X509_VOMSES" ; then',
-                    '    export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
-                    '  fi',
+                    '  export X509_VOMSES="%s/etc/grid-security/vomses"' % proPath,
                     'fi',
                     ''])
 
