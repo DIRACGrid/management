@@ -2087,6 +2087,8 @@ def createBashrc():
                'export PYTHONOPTIMIZE=x']
       if 'HOME' in os.environ:
         lines.append('[ -z "$HOME" ] && export HOME=%s' % os.environ['HOME'])
+      # We also need to ensure LANG is set for py2 unicode support
+      lines.append('[ -z "$LANG" ] && export LANG=en_US.UTF-8')
 
       # Helper function for checking dirs
       lines.extend(['# Function check if folder exist and contins files',
