@@ -1,0 +1,32 @@
+{% set name = "suds-jurko-compat" %}
+{% set version = "1.0.0+dirac.1" %}
+
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+build:
+  noarch: python
+  number: 0
+  script: {{ PYTHON }} -m pip install ${RECIPE_DIR}/sources/ -vv
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - python
+    - suds
+
+test:
+  imports:
+    - suds
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/DIRACGrid/management/tree/master/conda-recipes/suds-jurko-compat/sources/
+  summary: Metapackage for backwards compatibility with using suds instead of suds-jurko
