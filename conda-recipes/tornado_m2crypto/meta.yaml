@@ -12,18 +12,17 @@ source:
 
 build:
   noarch: python
-  number: 0
+  number: 1
   script: {{ PYTHON }} -m pip install . -vv
 
 requirements:
   host:
     - pip
-    - python
+    - python >=3.9
     - setuptools_scm
   run:
-    - enum34
     - m2crypto
-    - python
+    - python >=3.9
     - tornado ==5.1.1+dirac.*
 
 test:
