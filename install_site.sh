@@ -23,7 +23,7 @@ install_root="${PWD}"
 extension="DIRAC"
 version=""
 install_cfg=""
-declare -a extra_pip_install
+extra_pip_install=()
 
 # Parse the arguments
 while [ "${1:-}" ]; do
