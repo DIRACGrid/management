@@ -69,6 +69,31 @@ jobs:
             echo "Skipping deploy no secrets present";
           fi
 
+  el9-dirac:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: build
+        run: docker build -t el9-dirac el9-dirac/
+      - name: tag
+        run: |
+          docker tag el9-dirac diracgrid/el9-dirac:latest
+          docker tag el9-dirac ghcr.io/diracgrid/management/el9-dirac:latest
+      - name: show
+        run: docker images
+      - name: login and push
+        env:
+          deploy_secret: ${{ secrets.DOCKER_HUB_USERNAME }}
+        run: |
+          if [ ! -z ${deploy_secret} ]; then
+            echo ${{ secrets.DOCKER_HUB_PASSWORD }} | docker login --username ${{ secrets.DOCKER_HUB_USERNAME }} --password-stdin;
+            echo ${{ secrets.CR_PAT }} | docker login ghcr.io --username ${{ github.actor }} --password-stdin;
+            docker push diracgrid/el9-dirac:latest;
+            docker push ghcr.io/diracgrid/management/el9-dirac:latest;
+          else
+            echo "Skipping deploy no secrets present";
+          fi
+
   c8-dirac:
     runs-on: ubuntu-latest
     steps:
