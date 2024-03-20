@@ -16,36 +16,6 @@ on: push
 jobs:
 
   # Images for running integration tests
-  docker-compose-dirac:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: build
-        run: docker build -t docker-compose-dirac docker-compose-dirac/
-      - name: tag
-        run: |
-          docker tag docker-compose-dirac diracgrid/docker-compose-dirac:latest
-          docker tag docker-compose-dirac ghcr.io/diracgrid/management/docker-compose-dirac:latest
-      - name: show
-        run: docker images
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: push
-        run: |
-          docker push diracgrid/docker-compose-dirac:latest;
-          docker push ghcr.io/diracgrid/management/docker-compose-dirac:latest;
 
   el9-dirac:
     runs-on: ubuntu-latest
@@ -78,38 +48,6 @@ jobs:
           docker push diracgrid/el9-dirac:latest;
           docker push ghcr.io/diracgrid/management/el9-dirac:latest;
 
-  c8-dirac:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: build
-        run: docker build -t c8-dirac c8-dirac/
-      - name: tag
-        run: |
-          docker tag c8-dirac diracgrid/c8-dirac:latest
-          docker tag c8-dirac ghcr.io/diracgrid/management/c8-dirac:latest
-      - name: show
-        run: docker images
-       
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: push
-        run: |
-          docker push diracgrid/c8-dirac:latest;
-          docker push ghcr.io/diracgrid/management/c8-dirac:latest;
-
-
   cc7-dirac:
     runs-on: ubuntu-latest
     steps:
@@ -140,39 +78,3 @@ jobs:
         run: |
           docker push diracgrid/cc7-dirac:latest;
           docker push ghcr.io/diracgrid/management/cc7-dirac:latest;
-
-
-  # Image for deploying config files to CVMFS (GridFTP)
-  dirac-cvmfs:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: build
-        run: |
-          echo $PWD
-          ls -l
-          docker build -t dirac-cvmfs dirac-cvmfs/
-      - name: tag
-        run: |
-          docker tag dirac-cvmfs diracgrid/dirac-cvmfs:latest
-          docker tag dirac-cvmfs ghcr.io/diracgrid/management/dirac-cvmfs:latest
-      - name: show
-        run: docker images
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKERHUB_USERNAME }}
-          password: ${{ secrets.DOCKERHUB_TOKEN }}
-      
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: push
-        run: |
-          docker push diracgrid/dirac-cvmfs:latest;
-          docker push ghcr.io/diracgrid/management/dirac-cvmfs:latest;
