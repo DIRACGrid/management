@@ -7,11 +7,16 @@
 
 name: Create images
 
-on: push
-# on:
-#   schedule:
-#     # every Sunday
-#     - cron:  '0 0 * * 0'
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  schedule:
+    - cron: '0 2 * * 1'
+  workflow_dispatch:
 
 jobs:
 
