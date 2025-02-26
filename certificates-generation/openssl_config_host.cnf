@@ -1,6 +1,3 @@
-# OpenSSL root CA configuration file
-
-
 [ req ]
 # Options for the `req` tool (`man req`).
 default_bits        = 2048
