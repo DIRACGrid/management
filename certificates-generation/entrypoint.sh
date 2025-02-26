@@ -29,7 +29,7 @@ if ! openssl ca -config /ca/openssl_config_ca.cnf \
     exit 1
 fi
 
-### User
+### User (for DIRAC client)
 
 if ! openssl genrsa -out /ca/certs/client.key 2048; then
     echo "Failed to generate user private key"
@@ -52,6 +52,32 @@ if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -in /ca/requests/client.req \
                 -out /ca/certs/client.pem; then
     echo "Failed to generate user certificate"
+    exit 1
+fi
+
+### DIRAC Pilot
+
+if ! openssl genrsa -out /ca/certs/pilot.key 2048; then
+    echo "Failed to generate pilot private key"
+    exit 1
+fi
+chmod 400 pilot.key
+
+if ! openssl req -config /ca/openssl_config_pilot.cnf \
+                 -key /ca/certs/pilot.key \
+                 -new \
+                 -out /ca/requests/pilot.req; then
+    echo "Failed to generate pilot certificate signing request"
+    exit 1
+fi
+
+if ! openssl ca -config /ca/openssl_config_ca.cnf \
+                -extensions usr_cert \
+                -batch \
+                -days 5 \
+                -in /ca/requests/pilot.req \
+                -out /ca/certs/pilot.pem; then
+    echo "Failed to generate pilot certificate"
     exit 1
 fi
 
