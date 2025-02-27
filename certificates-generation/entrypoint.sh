@@ -21,7 +21,7 @@ if ! openssl req -config /ca/openssl_config_host.cnf \
 fi
 if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -batch \
-                -days 5 \
+                -days 15 \
                 -in /ca/requests/server.csr \
                 -extensions server_cert \
                 -out /ca/certs/hostcert.pem; then
@@ -48,7 +48,7 @@ fi
 if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -extensions usr_cert \
                 -batch \
-                -days 5 \
+                -days 15 \
                 -in /ca/requests/client.req \
                 -out /ca/certs/client.pem; then
     echo "Failed to generate user certificate"
@@ -74,7 +74,7 @@ fi
 if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -extensions usr_cert \
                 -batch \
-                -days 5 \
+                -days 15 \
                 -in /ca/requests/pilot.req \
                 -out /ca/certs/pilot.pem; then
     echo "Failed to generate pilot certificate"
