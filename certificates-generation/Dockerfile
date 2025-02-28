@@ -20,6 +20,7 @@ RUN chmod 700 /ca/private && \
 COPY openssl_config_ca.cnf /ca/openssl_config_ca.cnf
 COPY openssl_config_host.cnf /ca/openssl_config_host.cnf
 COPY openssl_config_user.cnf /ca/openssl_config_user.cnf
+COPY openssl_config_user.cnf /ca/openssl_config_adminusername.cnf
 COPY openssl_config_pilot.cnf /ca/openssl_config_pilot.cnf
 
 # Generate CA private key and certificate
