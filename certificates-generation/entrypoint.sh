@@ -31,6 +31,7 @@ fi
 
 ### DIRAC User ciuser
 
+echo "Generating DIRAC user ciuser"
 if ! openssl genrsa -out /ca/certs/client.key 2048; then
     echo "Failed to generate ciuser private key"
     exit 1
@@ -57,6 +58,7 @@ fi
 
 ### DIRAC User adminusername
 
+echo "Generating DIRAC user adminusername"
 if ! openssl genrsa -out /ca/certs/adminusername.key 2048; then
     echo "Failed to generate adminusername private key"
     exit 1
@@ -83,6 +85,7 @@ fi
 
 ### DIRAC Pilot
 
+echo "Generating DIRAC pilot cert"
 if ! openssl genrsa -out /ca/certs/pilot.key 2048; then
     echo "Failed to generate pilot private key"
     exit 1
@@ -110,6 +113,7 @@ fi
 ###
 
 echo "DIRAC Certificates generated and available in /ca/certs"
+ls -al --color /ca/certs
 
 if ! chmod -R o=u /ca/certs; then
     echo "Failed to set read permissions on /ca/certs"
