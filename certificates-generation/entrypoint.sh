@@ -29,10 +29,10 @@ if ! openssl ca -config /ca/openssl_config_ca.cnf \
     exit 1
 fi
 
-### User (for DIRAC client)
+### DIRAC User ciuser
 
 if ! openssl genrsa -out /ca/certs/client.key 2048; then
-    echo "Failed to generate user private key"
+    echo "Failed to generate ciuser private key"
     exit 1
 fi
 chmod 400 client.key
@@ -41,7 +41,7 @@ if ! openssl req -config /ca/openssl_config_user.cnf \
                  -key /ca/certs/client.key \
                  -new \
                  -out /ca/requests/client.req; then
-    echo "Failed to generate user certificate signing request"
+    echo "Failed to generate ciuser certificate signing request"
     exit 1
 fi
 
@@ -51,7 +51,33 @@ if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -days 15 \
                 -in /ca/requests/client.req \
                 -out /ca/certs/client.pem; then
-    echo "Failed to generate user certificate"
+    echo "Failed to generate ciuser certificate"
+    exit 1
+fi
+
+### DIRAC User adminusername
+
+if ! openssl genrsa -out /ca/certs/client.key 2048; then
+    echo "Failed to generate adminusername private key"
+    exit 1
+fi
+chmod 400 client.key
+
+if ! openssl req -config /ca/openssl_config_user.cnf \
+                 -key /ca/certs/client.key \
+                 -new \
+                 -out /ca/requests/client.req; then
+    echo "Failed to generate adminusername certificate signing request"
+    exit 1
+fi
+
+if ! openssl ca -config /ca/openssl_config_ca.cnf \
+                -extensions usr_cert \
+                -batch \
+                -days 15 \
+                -in /ca/requests/client.req \
+                -out /ca/certs/client.pem; then
+    echo "Failed to generate adminusername certificate"
     exit 1
 fi
 
