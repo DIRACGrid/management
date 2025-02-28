@@ -57,16 +57,16 @@ fi
 
 ### DIRAC User adminusername
 
-if ! openssl genrsa -out /ca/certs/client.key 2048; then
+if ! openssl genrsa -out /ca/certs/adminusername.key 2048; then
     echo "Failed to generate adminusername private key"
     exit 1
 fi
-chmod 400 client.key
+chmod 400 adminusername.key
 
-if ! openssl req -config /ca/openssl_config_user.cnf \
-                 -key /ca/certs/client.key \
+if ! openssl req -config /ca/openssl_confi_adminusername.cnf \
+                 -key /ca/certs/adminusername.key \
                  -new \
-                 -out /ca/requests/client.req; then
+                 -out /ca/requests/adminusername.req; then
     echo "Failed to generate adminusername certificate signing request"
     exit 1
 fi
@@ -75,8 +75,8 @@ if ! openssl ca -config /ca/openssl_config_ca.cnf \
                 -extensions usr_cert \
                 -batch \
                 -days 15 \
-                -in /ca/requests/client.req \
-                -out /ca/certs/client.pem; then
+                -in /ca/requests/adminusername.req \
+                -out /ca/certs/adminusername.pem; then
     echo "Failed to generate adminusername certificate"
     exit 1
 fi
