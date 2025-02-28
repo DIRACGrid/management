@@ -7,7 +7,7 @@ if ! openssl genrsa -out /ca/certs/hostkey.pem 2048; then
     echo "Failed to generate DIRAC server private key"
     exit 1
 fi
-chmod 400 hostkey.pem
+chmod 400 /ca/certs/hostkey.pem
 
 ### DIRAC Server
 
@@ -35,7 +35,7 @@ if ! openssl genrsa -out /ca/certs/client.key 2048; then
     echo "Failed to generate ciuser private key"
     exit 1
 fi
-chmod 400 client.key
+chmod 400 /ca/certs/client.key
 
 if ! openssl req -config /ca/openssl_config_user.cnf \
                  -key /ca/certs/client.key \
@@ -61,9 +61,9 @@ if ! openssl genrsa -out /ca/certs/adminusername.key 2048; then
     echo "Failed to generate adminusername private key"
     exit 1
 fi
-chmod 400 adminusername.key
+chmod 400 /ca/certs/adminusername.key
 
-if ! openssl req -config /ca/openssl_confi_adminusername.cnf \
+if ! openssl req -config /ca/openssl_config_adminusername.cnf \
                  -key /ca/certs/adminusername.key \
                  -new \
                  -out /ca/requests/adminusername.req; then
@@ -87,7 +87,7 @@ if ! openssl genrsa -out /ca/certs/pilot.key 2048; then
     echo "Failed to generate pilot private key"
     exit 1
 fi
-chmod 400 pilot.key
+chmod 400 /ca/certs/pilot.key
 
 if ! openssl req -config /ca/openssl_config_pilot.cnf \
                  -key /ca/certs/pilot.key \
