@@ -1,0 +1,114 @@
+name: PR Review Reminder
+
+on:
+  schedule:
+    - cron: "0 8 * * 1-5"
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch open PRs and notify Mattermost
+        uses: actions/github-script@v7
+        env:
+          MATTERMOST_WEBHOOK: ${{ secrets.MATTERMOST_WEBHOOK }}
+        with:
+          script: |
+            const repos = [
+              { owner: "DIRACGrid", name: "diracx" },
+              { owner: "DIRACGrid", name: "diracx-charts" },
+              { owner: "DIRACGrid", name: "diracx-web" },
+              { owner: "DIRACGrid", name: "mkdocs-diracx-plugin" },
+            ];
+
+            // Build a single GraphQL query with aliases for all repos
+            const repoFragments = repos.map((r, i) =>
+              `repo${i}: repository(owner: "${r.owner}", name: "${r.name}") {
+                nameWithOwner
+                pullRequests(states: OPEN, first: 100) {
+                  nodes {
+                    number
+                    title
+                    url
+                    isDraft
+                    createdAt
+                    author { login }
+                    reviews(last: 10) {
+                      nodes { state }
+                    }
+                    reviewRequests(first: 10) {
+                      totalCount
+                    }
+                  }
+                }
+              }`
+            ).join("\n");
+
+            const query = `query { ${repoFragments} }`;
+            const result = await github.graphql(query);
+
+            // Process results
+            const sections = [];
+            let totalPRs = 0;
+
+            for (let i = 0; i < repos.length; i++) {
+              const data = result[`repo${i}`];
+              const prs = data.pullRequests.nodes.filter(pr => !pr.isDraft);
+              if (prs.length === 0) continue;
+              totalPRs += prs.length;
+
+              const rows = prs.map(pr => {
+                const age = Math.floor(
+                  (Date.now() - new Date(pr.createdAt).getTime()) / 86400000
+                );
+                const author = pr.author ? pr.author.login : "ghost";
+
+                // Determine review status
+                let status;
+                const reviewStates = pr.reviews.nodes.map(r => r.state);
+                if (reviewStates.includes("CHANGES_REQUESTED")) {
+                  status = ":warning: Changes requested";
+                } else if (reviewStates.includes("APPROVED")) {
+                  status = ":white_check_mark: Approved";
+                } else if (pr.reviewRequests.totalCount > 0) {
+                  status = ":eyes: Review requested";
+                } else {
+                  status = ":hourglass: Awaiting review";
+                }
+
+                return `| [#${pr.number}](${pr.url}) | ${pr.title} | ${author} | ${age}d | ${status} |`;
+              });
+
+              sections.push(
+                `#### ${data.nameWithOwner}\n` +
+                "| PR | Title | Author | Age | Status |\n" +
+                "|:---|:------|:-------|:----|:-------|\n" +
+                rows.join("\n")
+              );
+            }
+
+            if (totalPRs === 0) {
+              core.info("No non-draft PRs found across any repos. Skipping notification.");
+              return;
+            }
+
+            const message = `### :mag: Open PR Review Summary\n\n${sections.join("\n\n")}`;
+
+            const webhookUrl = process.env.MATTERMOST_WEBHOOK;
+            if (!webhookUrl) {
+              core.setFailed("MATTERMOST_WEBHOOK secret is not set");
+              return;
+            }
+
+            const response = await fetch(webhookUrl, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ text: message }),
+            });
+
+            if (!response.ok) {
+              core.setFailed(`Mattermost webhook failed: ${response.status} ${response.statusText}`);
+            } else {
+              core.info(`Posted summary of ${totalPRs} open PRs to Mattermost`);
+            }

@@ -1,0 +1,37 @@
+name: Draft on Changes Requested
+
+on:
+  workflow_call:
+
+jobs:
+  convert-to-draft:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Convert PR to draft
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            if (pr.draft) {
+              core.info("PR is already a draft, skipping.");
+              return;
+            }
+
+            // Get the PR node ID for the GraphQL mutation
+            const { data } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: pr.number,
+            });
+
+            await github.graphql(`
+              mutation($id: ID!) {
+                convertPullRequestToDraft(input: { pullRequestId: $id }) {
+                  pullRequest { isDraft }
+                }
+              }
+            `, { id: data.node_id });
+
+            core.info(`Converted PR #${pr.number} to draft.`);
