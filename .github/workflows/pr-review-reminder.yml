@@ -39,6 +39,12 @@ jobs:
                     }
                     reviewRequests(first: 10) {
                       totalCount
+                      nodes {
+                        requestedReviewer {
+                          ... on User { login }
+                          ... on Team { name }
+                        }
+                      }
                     }
                   }
                 }
@@ -77,13 +83,18 @@ jobs:
                   status = ":hourglass: Awaiting review";
                 }
 
-                return `| [#${pr.number}](${pr.url}) | ${pr.title} | ${author} | ${age}d | ${status} |`;
+                const reviewers = pr.reviewRequests.nodes
+                  .map(r => r.requestedReviewer?.login || r.requestedReviewer?.name || "")
+                  .filter(Boolean)
+                  .join(", ") || "-";
+
+                return `| [#${pr.number}](${pr.url}) | ${pr.title} | ${author} | ${reviewers} | ${age}d | ${status} |`;
               });
 
               sections.push(
                 `#### ${data.nameWithOwner}\n` +
-                "| PR | Title | Author | Age | Status |\n" +
-                "|:---|:------|:-------|:----|:-------|\n" +
+                "| PR | Title | Author | Reviewer | Age | Status |\n" +
+                "|:---|:------|:-------|:---------|:----|:-------|\n" +
                 rows.join("\n")
               );
             }
