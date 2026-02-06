@@ -2,6 +2,10 @@ name: Draft on Changes Requested
 
 on:
   workflow_call:
+    inputs:
+      pr_number:
+        required: true
+        type: number
 
 jobs:
   convert-to-draft:
@@ -13,18 +17,16 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const pr = context.payload.pull_request;
+            const { data: pr } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: ${{ inputs.pr_number }},
+            });
+
             if (pr.draft) {
               core.info("PR is already a draft, skipping.");
               return;
             }
-
-            // Get the PR node ID for the GraphQL mutation
-            const { data } = await github.rest.pulls.get({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              pull_number: pr.number,
-            });
 
             await github.graphql(`
               mutation($id: ID!) {
@@ -32,6 +34,6 @@ jobs:
                   pullRequest { isDraft }
                 }
               }
-            `, { id: data.node_id });
+            `, { id: pr.node_id });
 
-            core.info(`Converted PR #${pr.number} to draft.`);
+            core.info(`Converted PR #${{ inputs.pr_number }} to draft.`);
