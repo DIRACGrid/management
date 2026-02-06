@@ -2,29 +2,42 @@ name: Draft on Changes Requested
 
 on:
   workflow_call:
-    inputs:
-      pr_number:
+    secrets:
+      token:
         required: true
-        type: number
 
 jobs:
   convert-to-draft:
     runs-on: ubuntu-latest
-    permissions:
-      pull-requests: write
     steps:
       - name: Convert PR to draft
         uses: actions/github-script@v7
         with:
+          github-token: ${{ secrets.token }}
           script: |
-            const { data: pr } = await github.rest.pulls.get({
+            const run = context.payload.workflow_run;
+            if (!run) {
+              core.setFailed("This workflow must be called from a workflow_run trigger.");
+              return;
+            }
+
+            const owner = run.head_repository.owner.login;
+            const branch = run.head_branch;
+            const { data: prs } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              pull_number: ${{ inputs.pr_number }},
+              state: "open",
+              head: `${owner}:${branch}`,
             });
 
+            if (prs.length === 0) {
+              core.info("No open PR found for this branch.");
+              return;
+            }
+
+            const pr = prs[0];
             if (pr.draft) {
-              core.info("PR is already a draft, skipping.");
+              core.info(`PR #${pr.number} is already a draft, skipping.`);
               return;
             }
 
@@ -36,4 +49,4 @@ jobs:
               }
             `, { id: pr.node_id });
 
-            core.info(`Converted PR #${{ inputs.pr_number }} to draft.`);
+            core.info(`Converted PR #${pr.number} to draft.`);
