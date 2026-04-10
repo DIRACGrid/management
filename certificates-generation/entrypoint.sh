@@ -112,7 +112,29 @@ fi
 
 ###
 
-echo "DIRAC Certificates generated and available in /ca/certs"
+echo "Generating Certificate Revocation List (CRL)"
+if ! openssl ca -config /ca/openssl_config_ca.cnf \
+                -gencrl \
+                -out /ca/crl/ca.crl.pem; then
+    echo "Failed to generate CRL"
+    exit 1
+fi
+
+echo "Converting CRL to DER format"
+if ! openssl crl -in /ca/crl/ca.crl.pem \
+                 -outform DER \
+                 -out /ca/crl/ca.crl.der; then
+    echo "Failed to convert CRL to DER format"
+    exit 1
+fi
+
+# Copy CRL to certs directory for easy access
+cp /ca/crl/ca.crl.pem /ca/certs/ca.crl.pem
+cp /ca/crl/ca.crl.der /ca/certs/ca.crl.der
+
+###
+
+echo "DIRAC Certificates and CRL generated and available in /ca/certs"
 ls -al --color /ca/certs
 
 if ! chmod -R o=u /ca/certs; then
