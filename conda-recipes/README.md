@@ -6,8 +6,15 @@ New packages can be added to conda-forge using [`staged-recipes`](https://github
 
 If it is absolutely essential for DIRAC to have a custom build of a package, a new directory can be added here. A reference for the `meta.yaml` syntax can be found [here](https://conda.io/projects/conda-build/en/latest/resources/define-metadata.html) and the [conda-forge](https://conda-forge.org/feedstocks/) is a good source of examples. You can then test building packages by running:
 
+First, install conda-build
+```bash
+conda install -n base -c conda-forge conda-build
+```
+
+Then build with:
 ```bash
 conda build -c diracgrid -c conda-forge -m conda_build_config.yaml my-package/
+# conda-build -c diracgrid -c conda-forge -m conda-recipes/conda_build_config.yaml conda-recipes/tornado_m2crypto/ 
 ```
 
 The `conda-recipes/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter version. If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
@@ -16,7 +23,7 @@ Once a newly built package is ready, it can be uploaded to the [`diracgrid`](htt
 
 ```bash
 # Install the anaconda CLI client
-conda install anaconda-client
+mamba install anaconda-client
 # Login using your anaconda.org credentials
 anaconda login
 # Upload the binary, the file path will be printed at the end of the conda-build log
