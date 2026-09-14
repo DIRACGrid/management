@@ -1,5 +1,5 @@
 {% set name = "tornado_m2crypto" %}
-{% set version = "0.1.3" %}
+{% set version = "0.1.5" %}
 
 
 package:
@@ -18,11 +18,11 @@ build:
 requirements:
   host:
     - pip
-    - python >=3.9
+    - python >=3.11
     - setuptools_scm
   run:
     - m2crypto
-    - python >=3.9
+    - python >=3.11
     - tornado ==5.1.1+dirac.*
 
 test:
