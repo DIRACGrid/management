@@ -8,11 +8,11 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/tornado_m2crypto-{{ version }}.tar.gz
-  sha256: 9c30ce25031ffe438b95f541cb9d50d5858db5d9e519d8e4e67b42f32416c260
+  sha256: b993e84c13ff59f084860a1c6c008a11a61f0f0f27d615513501690cf683626f
 
 build:
   noarch: python
-  number: 1
+  number: 0
   script: {{ PYTHON }} -m pip install . -vv
 
 requirements:

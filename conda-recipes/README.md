@@ -13,26 +13,35 @@ conda install -n base -c conda-forge conda-build
 
 Then build with:
 ```bash
-conda build -c diracgrid -c conda-forge -m conda_build_config.yaml my-package/
-# conda-build -c diracgrid -c conda-forge -m conda-recipes/conda_build_config.yaml conda-recipes/tornado_m2crypto/ 
+# Install boa for faster mamba-based builds
+mamba install -c conda-forge boa
+# Build the package
+conda mambabuild -c diracgrid -c conda-forge -m conda_build_config.yaml my-package/
 ```
 
-The `conda-recipes/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter version. If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
+The `conda-recipes/conda_build_config.yaml` file is a "[variant config file](https://conda.io/projects/conda-build/en/latest/resources/variants.html#creating-conda-build-variant-config-files)" which is used to constrain the versions of dependencies. Currently this is only used to set the Python interpreter versions (3.11, 3.12, 3.13, 3.14). If shared library dependencies are added, new values should be added based on the main [conda-forge configuration](https://github.com/conda-forge/conda-forge-pinning-feedstock/blob/master/recipe/conda_build_config.yaml).
 
 Once a newly built package is ready, it can be uploaded to the [`diracgrid`](https://anaconda.org/diracgrid/) conda channel using:
 
 ```bash
 # Install the anaconda CLI client
-mamba install anaconda-client
+mamba install -c conda-forge anaconda-client
 # Login using your anaconda.org credentials
 anaconda login
-# Upload the binary, the file path will be printed at the end of the conda-build log
+# Upload the binary, the file path will be printed at the end of the conda-mambabuild log
 anaconda upload path/to/my/package.tar.bz2 --user diracgrid
 ```
 
-As this is forseen as to be a rare operation, contious integration is not currently being used for building and uploading packages.
+As this is foreseen as to be a rare operation, continuous integration is not currently being used for building and uploading packages.
 
 ## Packages
+
+### suds-jurko-compat
+
+**Reason for not using conda-forge:** Metapackage for backwards compatibility with using `suds` instead of `suds-jurko`.
+
+**Version history:**
+* `1.0.0+dirac.1-0` Initial release
 
 ### tornado
 
@@ -40,6 +49,7 @@ As this is forseen as to be a rare operation, contious integration is not curren
 
 **Version history:**
 * `5.1.1+dirac.1-0` Initial release
+* `5.1.1+dirac.3-0` Updated fork
 
 ### tornado_m2crypto
 
@@ -47,3 +57,4 @@ As this is forseen as to be a rare operation, contious integration is not curren
 
 **Version history:**
 * `0.1.1-0` Initial release
+* `0.1.5-0` Updated to latest upstream version
