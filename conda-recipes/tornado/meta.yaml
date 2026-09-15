@@ -1,7 +1,7 @@
 {% set name = "tornado" %}
 # As we have forked tornado, use a local version identifier
 # https://www.python.org/dev/peps/pep-0440/#local-version-segments
-{% set version = "5.1.1+dirac.2" %}
+{% set version = "5.1.1+dirac.3" %}
 
 
 package:
@@ -10,7 +10,7 @@ package:
 
 source:
   url: https://github.com/DIRACGrid/tornado/archive/v{{ version }}.tar.gz
-  sha256: 3f3875c30fb2471532e8492506e427954cbaf8ccd9e8fcdf02606ae1b1dfac7b
+  sha256: e9a3dd8fd7af455ce7d55bc0dfacbea4f5773ef8fbc48bae72b89af5050c4e46
 
 build:
   number: 0
