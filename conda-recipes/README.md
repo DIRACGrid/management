@@ -57,4 +57,4 @@ As this is foreseen as to be a rare operation, continuous integration is not cur
 
 **Version history:**
 * `0.1.1-0` Initial release
-* `0.1.5-0` Updated to latest upstream version
+* `0.1.6-0` Updated to latest upstream version
