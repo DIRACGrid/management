@@ -28,7 +28,11 @@ jobs:
       run: |
         pip install pytest requests
         pytest hs23-table/test_generate_hs23_table.py
+    - name: Test the HS23 table generator
+      run: |
+        pip install pytest requests
+        pytest hs23-table/test_generate_hs23_table.py
     - name: Lint with pylint
       run: |
         pip install pylint
-        pylint -E --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" dirac-install.py hs23-table/generate_hs23_table.py
+        pylint -E --msg-template="{path}:{line}: [{msg_id}({symbol}), {obj}] {msg}" dirac-install.py hs23-table/generate_hs23_table.py hs23-table/generate_hs23_table.py
