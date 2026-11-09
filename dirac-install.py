@@ -209,6 +209,8 @@ class Params(object):
 
 
 cliParams = Params()
+# set by loadConfiguration(), read by writeDefaultConfiguration()
+releaseConfig = None
 
 ###
 # Release config manager
@@ -1742,9 +1744,8 @@ def usage():
 
 
 def loadConfiguration():
-  """
-  It loads the configuration file
-  """
+  """It loads the configuration file"""
+  global releaseConfig
   optList, args = getopt.getopt(sys.argv[1:],
                                 "".join([opt[0] for opt in cmdOpts]),
                                 [opt[1] for opt in cmdOpts])
