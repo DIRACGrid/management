@@ -80,5 +80,6 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: push
+        if: github.event_name == 'push' && github.repository == 'DIRACGrid/management' && github.ref_name == 'master'
         run: |
           docker push ghcr.io/diracgrid/management/el9-dirac:latest;
