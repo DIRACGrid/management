@@ -66,6 +66,8 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: push
-        if: github.event_name == 'push' && github.repository == 'DIRACGrid/management' && github.ref_name == 'master'
+        # Not from PRs (fork tokens are read-only); the weekly schedule must
+        # still publish el9-dirac:latest with the fresh OS updates.
+        if: github.event_name != 'pull_request' && github.repository == 'DIRACGrid/management' && github.ref_name == 'master'
         run: |
           docker push ghcr.io/diracgrid/management/el9-dirac:latest;
